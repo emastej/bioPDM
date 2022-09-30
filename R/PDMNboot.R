@@ -1,17 +1,21 @@
 #' .PDMNboot
 #'
-#' @description Objective function for radPDM. Optimization algorithm that finds PDM weights that maximize |ab|
+#' @description Objective function for radPDM. Optimization algorithm that finds
+#' PDM weights that maximize |ab|
 #' while being orthogonal to previous PDM weights. Uses initial weights from PDMN
 #'
 #' @param x vector (N x 1) Treatment vector for N Subjects
 #' @param y vector (N x 1) Outcome vector for N Subjects
-#' @param m matrix (N x b) Mediator matrix with reduced dimension space of b features
+#' @param m matrix (N x b) Mediator matrix with reduced dimension space of b
+#' features
 #' @param W Weights of previously calculated directions of mediation
-#' @param initialValues matrix (b x q) Initial weights used for PDM calculation optimization
+#' @param initialValues matrix (b x q) Initial weights used for PDM calculation
+#' optimization
 #'
 #' @return A list
 #' \itemize{
-#'     \item weights: 95% CI, mean, and std of bootstrap results for each feature weight for each PDM
+#'     \item weights: 95% CI, mean, and std of bootstrap results for each
+#'     feature weight for each PDM
 #'     \item theta: pathway effects from each bootstrapped sample
 #'     }
 #'
@@ -26,7 +30,6 @@
 
   ## Set Up the initial variables
 
-  set.seed(12345)
 
   len <- dim(m)[2] # Number of mediators (or SVD components)
   N1 <- length(W)  # Number of PDMs previously calculated
@@ -55,10 +58,18 @@
   }
 
 
-  ## Find weights that maximize |ab| given the initial values of the optimization algorithm are the same from PDMN.R
+  ## Find weights that maximize |ab| given the initial values of the
+  ## optimization algorithm are the same from PDMN.R
 
 
-  optim_result <- pracma::fmincon(initialValues, objfun, m = m, y = y, X1 = X1, Aeq = A, beq = b, heq = ceq)
+  optim_result <- pracma::fmincon(initialValues,
+                                  objfun,
+                                  m = m,
+                                  y = y,
+                                  X1 = X1,
+                                  Aeq = A,
+                                  beq = b,
+                                  heq = ceq)
 
   # Weights
   weights <- optim_result$par

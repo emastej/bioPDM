@@ -10,7 +10,8 @@ plotMedPathCoeff(theta)
 \item{theta}{List of mediation path coefficients for each PDM}
 }
 \value{
-A figure with 3 subplots showing how Path A (red), Path B (blue), and |Path AB| (green) change in value for each PDM
+A figure with 3 subplots showing how Path A (red), Path B (blue),
+and |Path AB| (green) change in value for each PDM
 }
 \description{
 Plots mediation path coefficients of a, b, and |ab|

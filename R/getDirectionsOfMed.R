@@ -1,33 +1,50 @@
 #' getDirectionsOfMed
 #'
-#' @description Calculates radiomic-based Principal Directions of Mediation (PDMs) that mediate the effect of an exposure on an outcome.
+#' @description Calculates radiomic-based Principal Directions of Mediation
+#' (PDMs) that mediate the effect of an exposure on an outcome.
 #'
 #' @param data_list List containing X, Y, M, M_tilde, Dt, and exVar elements
 #' @param nPDM Number of PDMs to calculate
 #' @param doJointPDM Calculate the JointPDM. Can be True or False
-#' @param doBootPDM Bootstrap samples to calculate radiomic feature weight stats (95% CI, mean, standard deviation). Can be True or False.
-#' @param doBootJPDM Bootstrap samples to calculate feature weight stats (95% CI, mean, standard deviation) for JointPDM. Can be True or False
+#' @param doBootPDM Bootstrap samples to calculate radiomic feature weight stats
+#' (95% CI, mean, standard deviation). Can be True or False.
+#' @param doBootJPDM Bootstrap samples to calculate feature weight stats
+#' (95% CI, mean, standard deviation) for JointPDM. Can be True or False
 #' @param BootSamp Number of bootstrap samples
-#' @param returnBootsamples Return the PDM weights and theta calculated from bootstrapped samples. Can be True or False.
-#' @param saveResults Save final list and a .txt file with parameters and any free text notes
+#' @param returnBootsamples Return the PDM weights and theta calculated from
+#' bootstrapped samples. Can be True or False.
+#' @param saveResults Save final list and a .txt file with parameters and any
+#' free text notes
 #' @param saveDir Directory for which the user wants to save results to
-#' @param notes Parameter to write a free text note that will be saved in .txt file (if saveResults = TRUE)
+#' @param notes Parameter to write a free text note that will be saved in .txt
+#' file (if saveResults = TRUE)
 #'
 #' @return A list
 #' \itemize{
-#'     \item w_k - matrix (b x q) Weights for each b feature calculated for each of the q PDMs
-#'     \item w_k*Dt - matrix (p x q) Weights mapped back onto original Mediator Matrix
-#'     \item JointW - vector (p x 1) Weights for the JointPDM. Each Mediator feature has one weight (if applicable)
-#'     \item Theta - matrix (5 x q) Mediation Path Coefficients for each of the q PDMs (c, c', a, b, ab)
+#'     \item w_k - matrix (b x q) Weights for each b feature calculated for each
+#'      of the q PDMs
+#'     \item w_k*Dt - matrix (p x q) Weights mapped back onto original Mediator
+#'     Matrix
+#'     \item JointW - vector (p x 1) Weights for the JointPDM. Each Mediator
+#'     feature has one weight (if applicable)
+#'     \item Theta - matrix (5 x q) Mediation Path Coefficients for each of the
+#'     q PDMs (c, c', a, b, ab)
 #'     \item PDMk - vector (p x 1) PDM vector for each k PDM
 #'     \item JointPDM - vector (p x 1) JointPDM
 #'     \item Boot - List of bootstrap results (if applicable)
 #'     \itemize{
-#'         \item w_kStats -  95% CI, mean, and standard deviation (for each feature for each PDM) calculated from the PDM weights generated from bootstrapped samples
-#'         \item w_kSamples -  The PDM weights generated from bootstrapped samples (from which the w_kStats were calculated)
-#'         \item ThetaSamples - Resulting mediation pathway coefficients from each bootstrapped sample
-#'         \item JointWStats - 95% CI, mean, and standard deviation (for each feature) calculated from JointW weights generated from bootstrapped results
-#'         \item JointWSamples - The JointPDM weights generated from bootstrapped samples (from which the JointWStats were calculated)
+#'         \item w_kStats -  95% CI, mean, and standard deviation
+#'         (for each feature for each PDM) calculated from the PDM weights
+#'         generated from bootstrapped samples
+#'         \item w_kSamples -  The PDM weights generated from bootstrapped
+#'         samples (from which the w_kStats were calculated)
+#'         \item ThetaSamples - Resulting mediation pathway coefficients from
+#'         each bootstrapped sample
+#'         \item JointWStats - 95% CI, mean, and standard deviation
+#'         (for each feature) calculated from JointW weights generated from
+#'         bootstrapped results
+#'         \item JointWSamples - The JointPDM weights generated from bootstrapped
+#'         samples (from which the JointWStats were calculated)
 #'     }
 #'    }
 #'
@@ -62,7 +79,8 @@ getDirectionsOfMed <- function(data_list = NULL,
 
   if (saveResults == TRUE){
     if (is.null(saveDir)){
-      stop("saveDir parameter is empty. Set the directory for which results get saved")
+      stop("saveDir parameter is empty.
+           Set the directory for which results get saved to")
     }
   }
 
@@ -71,8 +89,12 @@ getDirectionsOfMed <- function(data_list = NULL,
 
 
   # Calculate the PDM weights using the runPDM function
-  pdm_list <- .runPDM(x = data_list[['X']], y = data_list[['Y']], M_tilde = data_list[['M_tilde']],
-                     Dt = data_list[['Dt']], nPDM = nPDM, doJointPDM = doJointPDM)
+  pdm_list <- .runPDM(x = data_list[['X']],
+                      y = data_list[['Y']],
+                      M_tilde = data_list[['M_tilde']],
+                      Dt = data_list[['Dt']],
+                      nPDM = nPDM,
+                      doJointPDM = doJointPDM)
 
   # Remove Joint W from the list if JointPDM is not requested to be calculated
   if (doJointPDM == FALSE){
@@ -84,7 +106,10 @@ getDirectionsOfMed <- function(data_list = NULL,
 
 
   # Calculate PDMs using the previously calculated weights
-  pdm_list <- .calculatePDM(list = pdm_list, M = data_list[['M']], npdm = nPDM, doJPDM = doJointPDM)
+  pdm_list <- .calculatePDM(list = pdm_list,
+                            M = data_list[['M']],
+                            npdm = nPDM,
+                            doJPDM = doJointPDM)
 
 
   ## Bootstrap Results
@@ -93,12 +118,18 @@ getDirectionsOfMed <- function(data_list = NULL,
   # Bootstrap individual PDMs
   if (doBootPDM){
 
-    if (all(c('WMinit', 'w_k') %in% names(pdm_list)) && all(c('X', 'Y', 'M_tilde', 'Dt') %in% names(data_list))){
+    if (all(c('WMinit', 'w_k') %in% names(pdm_list)) &&
+        all(c('X', 'Y', 'M_tilde', 'Dt') %in% names(data_list))){
 
       # Calculate bootstrap results using runBootstrapPDM.R
-      boot_results <- .runBootstrapPDM(x = data_list[['X']],y = data_list[['Y']], M_tilde = data_list[['M_tilde']], W = pdm_list[['w_k']] ,
-                                     Dt = data_list[['Dt']], WMi = pdm_list[['WMinit']], Bsamp = BootSamp,
-                                     whPDM = 1:nPDM)
+      boot_results <- .runBootstrapPDM(x = data_list[['X']],
+                                       y = data_list[['Y']],
+                                       M_tilde = data_list[['M_tilde']],
+                                       W = pdm_list[['w_k']],
+                                       Dt = data_list[['Dt']],
+                                       WMi = pdm_list[['WMinit']],
+                                       Bsamp = BootSamp,
+                                       whPDM = 1:nPDM)
 
     } else {
       stop('Missing data to perform PDM bootstrapping')
@@ -116,12 +147,18 @@ getDirectionsOfMed <- function(data_list = NULL,
   # Bootstrap Joint PDM
   if (doBootJPDM){
 
-    if (all(c('WMinit', 'w_k') %in% names(pdm_list)) && all(c('X', 'Y', 'M_tilde', 'Dt') %in% names(data_list))){
+    if (all(c('WMinit', 'w_k') %in% names(pdm_list)) &&
+        all(c('X', 'Y', 'M_tilde', 'Dt') %in% names(data_list))){
 
       # Calculate JointPDM boostrap results using runBootstrapPDM.R
-      jboot_results <- .runBootstrapPDM(x = data_list[['X']],y = data_list[['Y']],M_tilde = data_list[['M_tilde']], W = pdm_list[['w_k']] ,
-                                      Dt = data_list[['Dt']], WMi = pdm_list[['WMinit']], Bsamp = BootSamp,
-                                       whPDM = 'jointPDM')
+      jboot_results <- .runBootstrapPDM(x = data_list[['X']],
+                                        y = data_list[['Y']],
+                                        M_tilde = data_list[['M_tilde']],
+                                        W = pdm_list[['w_k']],
+                                        Dt = data_list[['Dt']],
+                                        WMi = pdm_list[['WMinit']],
+                                        Bsamp = BootSamp,
+                                        whPDM = 'jointPDM')
 
     } else {
       stop('Missing data to perform JointPDM bootstrapping')
@@ -140,7 +177,13 @@ getDirectionsOfMed <- function(data_list = NULL,
 
 
   if (saveResults){
-    .saveOutputs(result_list = pdm_list, nPDM = nPDM, doBootPDM = doBootPDM, doBootJPDM = doBootJPDM, Bsamp = BootSamp, notes = notes, dir_to_save = saveDir)
+    .saveOutputs(result_list = pdm_list,
+                 nPDM = nPDM,
+                 doBootPDM = doBootPDM,
+                 doBootJPDM = doBootJPDM,
+                 Bsamp = BootSamp,
+                 notes = notes,
+                 dir_to_save = saveDir)
   }
 
 
@@ -227,7 +270,8 @@ getDirectionsOfMed <- function(data_list = NULL,
 # Function to save results from getDirectionsOfMed()
 # Saves the final output list and a notes .txt file
 
-.saveOutputs <- function(result_list, nPDM, doBootPDM, doBootJPDM, Bsamp, notes, dir_to_save){
+.saveOutputs <- function(result_list, nPDM, doBootPDM, doBootJPDM, Bsamp,
+                         notes, dir_to_save){
 
   # Create a folder to save results
   out_Dir <- "radPDM_results"
@@ -250,15 +294,18 @@ getDirectionsOfMed <- function(data_list = NULL,
     Bsamp <- NULL
   }
 
-  # Save out .text file that includes time, nPDM, Bsamp (if applicable), and notes (if applicable)
-  txt <- c('Time:', current_folder, '\nnPDM:', nPDM, '\nBootstrapSamples:', Bsamp, '\nNotes:', notes)
-  writeLines(txt, paste0(current_dir,'/',current_folder,'/', 'Parameters and Notes.txt'), sep = '\t')
+  # Save out .text file that includes time, nPDM, Bsamp (if applicable),
+  # and notes (if applicable)
+  txt <- c('Time:', current_folder, '\nnPDM:', nPDM, '\nBootstrapSamples:',
+           Bsamp, '\nNotes:', notes)
+  writeLines(txt, paste0(current_dir,'/',current_folder,'/',
+                         'Parameters and Notes.txt'), sep = '\t')
 
   }
 
 ###############################################################################
 
-# Function to set the Time and Date in order to define a new time stamped directory
+# Function to set the Time and Date in order to define a new time stamped dir
 # for saving results to
 
 .currentTime <- function(time = Sys.time()){

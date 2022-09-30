@@ -1,12 +1,16 @@
 #' .BootPDM
 #'
-#' @description Perform bootstrap process to calculate stats (95% CI, mean, std) on PDM weights
+#' @description Perform bootstrap process to calculate stats (95% CI, mean, std)
+#' on PDM weights
 #'
 #' @param x vector (N x 1) Treatment vector for N Subjects
 #' @param y vector (N x 1) Outcome vector for N Subjects
-#' @param M_tilde matrix (N x b) Mediator matrix with reduced dimension space of b features
-#' @param W matrix (b x q) Weights for each b feature calculated for each of the q PDMs
-#' @param Dt matrix (p x b)' Eigenvector space from SVD that maps M_tilde back to the original Mediator matrix
+#' @param M_tilde matrix (N x b) Mediator matrix with reduced dimension space of
+#' b features
+#' @param W matrix (b x q) Weights for each b feature calculated for each of the
+#' q PDMs
+#' @param Dt matrix (p x b)' Eigenvector space from SVD that maps M_tilde back
+#' to the original Mediator matrix
 #' @param Bsamp Number of bootstrap samples
 #' @param WMi matrix (b x q) Initial weights used for PDM calculation optimization
 #'
@@ -14,7 +18,8 @@
 #' \itemize{
 #'     \item stats - 95% CI, mean, and std of bootstrap results
 #'     \item Wboot - Resulting weights from bootstrap process
-#'     \item Tboot - Resulting theta values (mediation path coefficients) from bootstrap process
+#'     \item Tboot - Resulting theta values (mediation path coefficients)
+#'     from bootstrap process
 #'     }
 #'
 #' @noRd
@@ -46,7 +51,7 @@
   for (i in 1:Bsamp){
 
     # Print current bootstrapping iteration
-    cat('\r', 'Bootstrap Sample:', i, Bsamp)
+    cat('\r', 'Bootstrap Sample:', i, '/',Bsamp)
 
     tryCatch(expr={
 
@@ -61,7 +66,11 @@
       # Estimate the nth PDM using PDMN
       # Skip iterations that caused an eigenvalue error in fmincon
 
-      boot_pdmn_results <-  .PDMNboot(x = xB, y = yB, m = MB, W = W, initialValues = WMi)
+      boot_pdmn_results <-  .PDMNboot(x = xB,
+                                      y = yB,
+                                      m = MB,
+                                      W = W,
+                                      initialValues = WMi)
 
       # Save new weights and theta values
       w_n <- boot_pdmn_results[['weights']]

@@ -11,7 +11,8 @@ reduceMedDimension(treatment, outcome, mediator, exVar = 0.9)
 
 \item{outcome}{vector (N x 1) Outcome vector for N Subjects}
 
-\item{mediator}{matrix (N x p) Mediator matrix for N subjects and p features (Assumed p >> N)}
+\item{mediator}{matrix (N x p) Mediator matrix for N subjects and p features
+(Assumed p >> N)}
 
 \item{exVar}{Percentage of Mediator matrix variance user wants SVD to explain}
 }
@@ -20,13 +21,18 @@ A list
 \itemize{
 \item X - vector (N x 1) Treatment vector for N subjects
 \item Y - vector (N x 1) Outcome vector for N subjects
-\item M - matrix (N x p) Original Mediator matrix for N subjects and p features
-\item M_tilde - matrix (N x b) Mediator matrix with reduced dimension space of b features where N > b
-\item Dt - matrix (p x b)' Eigenvector space from SVD that maps M_tilde (reduced mediator matrix) back to the original Mediator matrix
-\item exVar - Percentage of Mediator matrix variance user wants SVD to explain
+\item M - matrix (N x p) Original Mediator matrix for N subjects and
+p features
+\item M_tilde - matrix (N x b) Mediator matrix with reduced dimension
+space of b features where N > b
+\item Dt - matrix (p x b)' Eigenvector space from SVD that maps M_tilde
+(reduced mediator matrix) back to the original Mediator matrix
+\item exVar - Percentage of Mediator matrix variance user wants SVD to
+explain
 }
 }
 \description{
-Reduces dimensions of radiomic mediator space using Singular Value Decomposition (SVD).
-Moves treatment, outcome, and radiomic mediator data into a list to be used as an input in later radPDM steps.
+Reduces dimensions of radiomic mediator space using Singular
+Value Decomposition (SVD). Moves treatment, outcome, and radiomic mediator
+data into a list to be used as an input in later radPDM steps.
 }

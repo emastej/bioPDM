@@ -10,7 +10,8 @@ printMedPathCoeff(theta)
 \item{theta}{List of mediation path coefficients for each PDM}
 }
 \value{
-A printed, formatted table of the mediation path coefficient values for a, b, ab, c' for each calculated PDM
+A printed, formatted table of the mediation path coefficient values
+for a, b, ab, c' for each calculated PDM
 }
 \description{
 Prints out mediation path coefficients in a formatted table

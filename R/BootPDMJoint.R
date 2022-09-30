@@ -1,12 +1,16 @@
 #' .BootPDMJoint
 #'
-#' @description Perform bootstrap process to calculate stats (95% CI, mean, std) on JointPDM weights
+#' @description Perform bootstrap process to calculate stats (95% CI, mean, std)
+#'  on JointPDM weights
 #'
 #' @param x vector (N x 1) Treatment vector for N Subjects
 #' @param y vector (N x 1) Outcome vector for N Subjects
-#' @param M_tilde matrix (N x b) Mediator matrix with reduced dimension space of b features
-#' @param W matrix (b x q) Weights for each b feature calculated for each of the q PDMs
-#' @param Dt matrix (p x b)' Eigenvector space from SVD that maps M_tilde back to the original Mediator matrix
+#' @param M_tilde matrix (N x b) Mediator matrix with reduced dimension space of
+#' b features
+#' @param W matrix (b x q) Weights for each b feature calculated for each of the
+#' q PDMs
+#' @param Dt matrix (p x b)' Eigenvector space from SVD that maps M_tilde back
+#' to the original Mediator matrix
 #' @param Bsamp Number of bootstrap samples
 #' @param WMi matrix (b x q) Initial weights used for PDM calculation optimization
 #'
@@ -14,7 +18,8 @@
 #' \itemize{
 #'     \item stats - 95% CI, mean, and std of bootstrap results
 #'     \item Wboot - Resulting weights from bootstrap process
-#'     \item Tboot - Resulting theta values (mediation path coefficients) from bootstrap process
+#'     \item Tboot - Resulting theta values (mediation path coefficients) from
+#'     bootstrap process
 #'     }
 #'
 #' @noRd
@@ -47,7 +52,7 @@
   for (i in 1:Bsamp){
 
     # Print current bootstrapping iteration
-    cat('\r', 'Bootstrap Sample:', i, Bsamp)
+    cat('\r', 'Bootstrap Sample:', i, '/', Bsamp)
 
     tryCatch(expr = {
 
@@ -68,11 +73,19 @@
 
       for (k in 1:nPDM){
         if (k==1){
-          boot_jpdmn_result <-  .PDMNboot(x = xB, y = yB, m = MB, W = NULL,initialValues = WMi[k])
+          boot_jpdmn_result <-  .PDMNboot(x = xB,
+                                          y = yB,
+                                          m = MB,
+                                          W = NULL,
+                                          initialValues = WMi[k])
           w_n[,k] <- boot_jpdmn_result[['weights']]
           theta_n[,k] <- boot_jpdmn_result[['theta']]
         } else {
-          boot_jpdmn_result <-  .PDMNboot(x  = xB, y = yB, m = MB, W = W[1:k-1], initialValues = WMi[k])
+          boot_jpdmn_result <-  .PDMNboot(x  = xB,
+                                          y = yB,
+                                          m = MB,
+                                          W = W[1:k-1],
+                                          initialValues = WMi[k])
           w_n[,k] <- boot_jpdmn_result[['weights']]
           theta_n[,k] <- boot_jpdmn_result[['theta']]
         }
@@ -82,7 +95,8 @@
       a_n <- theta_n[3,]
       b_n <- theta_n[4,]
 
-      # Calculate the Full Feature Weight Vector [p x b] x ( [b x npdm] x [npdm x 1] ) = [p x 1]
+      # Calculate the Full Feature Weight Vector
+      # [p x b] x ( [b x npdm] x [npdm x 1] ) = [p x 1]
       jWboot[,i] <- (D %*% (w_n %*% (a_n * b_n)))
       jTboot[,i,] <- theta_n
 

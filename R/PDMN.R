@@ -1,17 +1,20 @@
 #' .PDMN
 #'
-#' @description Objective function for radPDM. Optimization algorithm that finds PDM weights that maximize |ab|
+#' @description Objective function for radPDM. Optimization algorithm that finds
+#'  PDM weights that maximize |ab|
 #' while being orthogonal to previous PDM weights.
 #'
 #' @param x vector (N x 1) Treatment vector for N Subjects
 #' @param y vector (N x 1) Outcome vector for N Subjects
-#' @param m matrix (N x b) Mediator matrix with reduced dimension space of b features
+#' @param m matrix (N x b) Mediator matrix with reduced dimension space of b
+#' features
 #' @param W Weights of previously calculated directions of mediation
 #'
 #' @return A list
 #' \itemize{
 #'     \item weights -  Weights for the Nth direction of mediation
-#'     \item theta - Pathway coefficients for Nth direction of mediation (c, c', a, b)
+#'     \item theta - Pathway coefficients for Nth direction of mediation
+#'     (c, c', a, b)
 #'     \item init_weights - Initial weights used for PDM calculation optimization
 #'     }
 #'
@@ -22,9 +25,6 @@
 .PDMN <- function(x, y, m, W){
 
   ## Set Up the initial variables
-
-
-  set.seed(12345)
 
   len <- dim(m)[2] # Number of mediators (SVD components)
   N1 <- length(W)  # Number of PDMs previously calculated
@@ -81,7 +81,13 @@
             WMtmp <- WM
 
             # Find optimum weights to maximize ab
-            optim_result <- pracma::fmincon(WM, objfun, m = m, y = y, X1 = X1, Aeq = A, beq = b, heq = ceq)
+            optim_result <- pracma::fmincon(WM, objfun,
+                                            m = m,
+                                            y = y,
+                                            X1 = X1,
+                                            Aeq = A,
+                                            beq = b,
+                                            heq = ceq)
 
             # Weights
             weights <- optim_result$par
@@ -104,7 +110,7 @@
 
             ab <- abs(alpha[2]*beta[3])
 
-            # Repeat k times. If ab > than previous ab, Keep that iteration information
+            # Repeat k times. If ab > than previous ab, Keep that iteration info
             if (ab > crtmax){
               crtmax <- ab
               # theta = gamma, gamma' , alpha, beta
