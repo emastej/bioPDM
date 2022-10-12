@@ -10,6 +10,9 @@
 #' features
 #' @param W Weights of previously calculated directions of mediation
 #'
+#' @importFrom R.utils withTimeout
+#' @importFrom stats rnorm
+#'
 #' @return A list
 #' \itemize{
 #'     \item weights -  Weights for the Nth direction of mediation
