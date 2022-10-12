@@ -12,6 +12,8 @@
 #' @param nPDM Number of PDMs to calculate
 #' @param doJointPDM Calculate the JointPDM. Can be True or False
 #'
+#' @importFrom pracma fprintf
+#'
 #' @return A list
 #' \itemize{
 #'     \item W - matrix (b x q) Weights for each b feature calculated for each

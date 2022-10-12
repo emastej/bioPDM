@@ -10,6 +10,8 @@
 #' (Assumed p >> N)
 #' @param exVar Percentage of Mediator matrix variance user wants SVD to explain
 #'
+#' @importFrom pracma fprintf
+#'
 #' @return A list
 #' \itemize{
 #'     \item X - vector (N x 1) Treatment vector for N subjects

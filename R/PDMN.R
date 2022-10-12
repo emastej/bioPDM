@@ -12,6 +12,8 @@
 #'
 #' @importFrom R.utils withTimeout
 #' @importFrom stats rnorm
+#' @importFrom pracma fmincon
+#' @importFrom pracma pinv
 #'
 #' @return A list
 #' \itemize{

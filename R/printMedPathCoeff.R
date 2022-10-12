@@ -4,6 +4,8 @@
 #'
 #' @param theta List of mediation path coefficients for each PDM
 #'
+#' @importFrom pracma fprintf
+#'
 #' @return A printed, formatted table of the mediation path coefficient values
 #' for a, b, ab, c' for each calculated PDM
 #'

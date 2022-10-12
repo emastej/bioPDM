@@ -4,6 +4,8 @@
 #'
 #' @param theta List of mediation path coefficients for each PDM
 #'
+#' @importFrom graphics par
+#'
 #' @return A figure with 3 subplots showing how Path A (red), Path B (blue),
 #' and |Path AB| (green) change in value for each PDM
 #'

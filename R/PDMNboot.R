@@ -12,6 +12,9 @@
 #' @param initialValues matrix (b x q) Initial weights used for PDM calculation
 #' optimization
 #'
+#' @importFrom pracma fmincon
+#' @importFrom pracma pinv
+#'
 #' @return A list
 #' \itemize{
 #'     \item weights: 95% CI, mean, and std of bootstrap results for each

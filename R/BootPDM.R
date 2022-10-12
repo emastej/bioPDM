@@ -14,6 +14,9 @@
 #' @param Bsamp Number of bootstrap samples
 #' @param WMi matrix (b x q) Initial weights used for PDM calculation optimization
 #'
+#' @importFrom stats t.test
+#' @importFrom stats sd
+#'
 #' @return A list
 #' \itemize{
 #'     \item stats - 95% CI, mean, and std of bootstrap results
