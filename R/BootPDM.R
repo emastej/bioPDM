@@ -54,7 +54,7 @@
   for (i in 1:Bsamp){
 
     # Print current bootstrapping iteration
-    cat('\r', 'Bootstrap Sample:', i, '/',Bsamp)
+    cat('\r', 'Bootstrap Sample:', i, '/', Bsamp)
 
     tryCatch(expr={
 
@@ -88,8 +88,10 @@
   }
 
   # Remove any columns of zeros that may have happened due to iteration skipping
-  kWboot = kWboot[,-(which(colSums(kWboot)==0))]
-  kTboot = kTboot[,-(which(colSums(kTboot)==0))]
+  # kWboot = kWboot[,-(which(colSums(kWboot)==0))]
+  # kTboot = kTboot[,-(which(colSums(kTboot)==0))]
+  kWboot <- kWboot[, !(colSums(kWboot) == 0)]
+  kTboot <- kTboot[, !(colSums(kTboot) == 0)]
 
   # Calculate the 95% CI, mean and standard dev for the bootstrapped feature weights
   for (z in 1:p){
