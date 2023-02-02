@@ -32,7 +32,7 @@
 #'
 
 
-.runPDM <- function(x, y, M_tilde, Dt, nPDM, doJointPDM){
+.runPDM <- function(x, y, M_tilde, Dt, nPDM, doJointPDM, numCores){
 
 
   ## Calculate the Principal Directions of Mediation
@@ -63,7 +63,7 @@
     cat(' ',k)
 
     # Use PDMN function to calculate each PDM. Output is a list
-    pdmk_results <- .PDMN(x, y, M_tilde, W)
+    pdmk_results <- .PDMN(x, y, M_tilde, W, numCores)
 
     # Weights for kth direction
     w_k <- pdmk_results[['weights']]

@@ -18,6 +18,8 @@
 #' @param saveDir Directory for which the user wants to save results to
 #' @param notes Parameter to write a free text note that will be saved in .txt
 #' file (if saveResults = TRUE)
+#' @param numCores The number of cores to use for parallel execution. Defualt is
+#' a single core.
 #'
 #' @return A list
 #' \itemize{
@@ -53,15 +55,16 @@
 
 
 getDirectionsOfMed <- function(data_list = NULL,
-                                  nPDM = 5,
-                                  doJointPDM = TRUE,
-                                  doBootPDM = FALSE,
-                                  doBootJPDM = FALSE,
-                                  BootSamp = 1000,
-                                  returnBootsamples = FALSE,
-                                  saveResults = FALSE,
-                                  saveDir = NULL,
-                                  notes = NULL){
+                               nPDM = 5,
+                               doJointPDM = TRUE,
+                               doBootPDM = FALSE,
+                               doBootJPDM = FALSE,
+                               BootSamp = 1000,
+                               returnBootsamples = FALSE,
+                               saveResults = FALSE,
+                               saveDir = NULL,
+                               notes = NULL,
+                               numCores = 1){
 
 
   ## Check Input Data
@@ -94,7 +97,8 @@ getDirectionsOfMed <- function(data_list = NULL,
                       M_tilde = data_list[['M_tilde']],
                       Dt = data_list[['Dt']],
                       nPDM = nPDM,
-                      doJointPDM = doJointPDM)
+                      doJointPDM = doJointPDM,
+                      numCores)
 
   # Remove Joint W from the list if JointPDM is not requested to be calculated
   if (doJointPDM == FALSE){

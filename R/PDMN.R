@@ -27,7 +27,7 @@
 #'
 
 
-.PDMN <- function(x, y, m, W){
+.PDMN <- function(x, y, m, W, numCores){
 
   ## Set Up the initial variables
 
@@ -67,10 +67,22 @@
   # Set crtmax to 0. If |ab| > 0, then crtmax will be replaced
   crtmax <- 0
 
-  # Find the the PDM weights that max |ab|
-  for (i in 1:K){
 
-    # Error Handling (bypass iterations where the WM cause a complex eigenvalue error)
+  # Initialize clusters
+  cluster <- parallel::makeCluster(numCores)
+  doParallel::registerDoParallel(cluster)
+
+  # Prepare cluster environment
+  parallel::clusterExport(cluster, c("len", "m", "y", "X1", "A", "b",
+                                     "crtmax", "objfun", "ceq",
+                                     "fmincon", "pinv"),
+                          envir = environment())
+
+  # Parallelized loop
+  results <- parallel::parLapply(cluster, 1:K, fun = function (k) {
+
+    # Error Handling (bypass iterations where the WM cause a complex
+    # eigenvalue error)
     tryCatch({
 
       # Error Handling (Bypass iterations that take way too long)
@@ -124,14 +136,92 @@
               WMi <- WMtmp
             }
 
+            # Return final PDM weights, theta values,  and initial values
+            return(list('weights' = w_N, 'theta' = theta, 'init_weights' = WMi,
+                        'crtmax' = crtmax))
+
           },
           timeout = 2.3)},
         TimeoutException = function(ex) {})}, error=function(e){})
 
-  }
+  })
+
+  # Stop cluster
+  parallel::stopCluster(cluster)
+
+  # Choose final weights
+  notNullIndex <- unlist(lapply(results, function (x) { !is.null(x) }))
+  results <- results[notNullIndex]
+  crtmax <- unlist(lapply(results, function (x) { x$crtmax }))
+  crtmaxIndex <- which(crtmax == max(crtmax))
+  finalWeights <- results[[crtmaxIndex]]
+
+
+  # Find the the PDM weights that max |ab|
+  # for (i in 1:K){
+  #
+  #   # Error Handling (bypass iterations where the WM cause a complex eigenvalue error)
+  #   tryCatch({
+  #
+  #     # Error Handling (Bypass iterations that take way too long)
+  #     # I assume this is from being caught in a local minimum
+  #     tryCatch(
+  #       expr = {
+  #         R.utils::withTimeout({
+  #
+  #           # Generate random initial values where mu = 0 and std = 1
+  #           WM <- stats::rnorm(len, 0, 1)
+  #           WM <- WM/sqrt(sum(WM^2))
+  #
+  #           WMtmp <- WM
+  #
+  #           # Find optimum weights to maximize ab
+  #           optim_result <- pracma::fmincon(WM, objfun,
+  #                                           m = m,
+  #                                           y = y,
+  #                                           X1 = X1,
+  #                                           Aeq = A,
+  #                                           beq = b,
+  #                                           heq = ceq)
+  #
+  #           # Weights
+  #           weights <- optim_result$par
+  #
+  #           # Find Gamma
+  #           gamma <- pracma::pinv(X1) %*% y
+  #
+  #           # Find Alpha: [n x b] x [b x 1]
+  #           mw_N <- m %*% weights
+  #           # Solve for alpha since M = X * alpha
+  #           alpha <- pracma::pinv(X1) %*% mw_N
+  #
+  #           # Find Beta and Gamma'
+  #           X2 <- cbind(X1, mw_N)
+  #           beta <- pracma::pinv(X2) %*% y
+  #
+  #           # Quick Proof
+  #           # y = beta[1] + beta[2]*x + beta[3]*m
+  #           # where beta[1] = beta_0, beta[2] = c', beta[3] = b
+  #
+  #           ab <- abs(alpha[2]*beta[3])
+  #
+  #           # Repeat k times. If ab > than previous ab, Keep that iteration info
+  #           if (ab > crtmax){
+  #             crtmax <- ab
+  #             # theta = gamma, gamma' , alpha, beta
+  #             theta <- c(gamma[2], beta[2], alpha[2], beta[3])
+  #             w_N <- weights
+  #             WMi <- WMtmp
+  #           }
+  #
+  #         },
+  #         timeout = 2.3)},
+  #       TimeoutException = function(ex) {})}, error=function(e){})
+  #
+  # }
 
   # Return final PDM weights, theta values,  and initial values
-  return(list('weights' = w_N, 'theta' = theta, 'init_weights' = WMi))
+  return(finalWeights)
 
 }
 
