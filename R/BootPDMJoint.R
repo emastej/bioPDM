@@ -5,125 +5,136 @@
 #'
 #' @param x vector (N x 1) Treatment vector for N Subjects
 #' @param y vector (N x 1) Outcome vector for N Subjects
-#' @param M_tilde matrix (N x b) Mediator matrix with reduced dimension space of
+#' @param M_reduced matrix (N x b) Mediator matrix with reduced dimension space of
 #' b features
-#' @param W matrix (b x q) Weights for each b feature calculated for each of the
-#' q PDMs
-#' @param Dt matrix (p x b)' Eigenvector space from SVD that maps M_tilde back
+#' @param redFeatWeights matrix (b x k) Weights for each b feature calculated for each of the
+#' k PDMs
+#' @param tLoadingMatrix matrix (p x b)' Eigenvector space from SVD that maps M_reduced back
 #' to the original Mediator matrix
-#' @param Bsamp Number of bootstrap samples
-#' @param WMi matrix (b x q) Initial weights used for PDM calculation optimization
+#' @param bootSamp Number of bootstrap samples
+#' @param initValues matrix (b x k) Initial weights used for PDM calculation optimization
 #'
 #' @importFrom stats t.test
 #' @importFrom stats sd
 #'
 #' @return A list
 #' \itemize{
-#'     \item stats - 95% CI, mean, and std of bootstrap results
-#'     \item Wboot - Resulting weights from bootstrap process
-#'     \item Tboot - Resulting theta values (mediation path coefficients) from
+#'     \item weightStats - 95% CI, mean, and std of bootstrap results
+#'     \item weightBootSamples - Resulting weights from bootstrap process
+#'     \item pathBootSamples - Resulting mediation path coefficients from
 #'     bootstrap process
 #'     }
 #'
 #' @noRd
 #'
 
-.BootPDMJoint <- function(x, y, M_tilde, W, Dt, Bsamp, WMi){
+.BootPDMJoint <- function(x,
+                          y,
+                          M_reduced,
+                          redFeatWeights,
+                          tLoadingMatrix,
+                          bootSamp,
+                          initValues){
 
-  p <- dim(Dt)[2]
-  nsub <- length(y)
-  nPDM <- length(W)
-  jWboot <- matrix(0,p,Bsamp)
-
-  # jTboot dimensions are 4 x bootstrap sample size x nPDM
-  jTboot <- array(0, dim = c(4,Bsamp, nPDM))
-  jweight_stats <- vector("list", p)
+  # Number of features
+  num_feat <- dim(tLoadingMatrix)[2]
+  # Number of subjects
+  num_sub <- length(y)
+  # Number of Caluclated PDMs
+  nPDM <- length(redFeatWeights)
+  # JointPDM weights calculated after bootstrapping
+  jointPDM_weight_samples <- matrix(0,num_feat,bootSamp)
+  # jointPDM_path_coeff_samples dimensions are 4 x bootstrap sample size x nPDM
+  jointPDM_path_coeff_samples <- array(0, dim = c(4,bootSamp, nPDM))
+  jointPDM_weight_stats <- vector("list", num_feat)
 
   # Create matrix of randomly generated samples
-  rand_samp <- matrix(0,nsub,Bsamp)
+  rand_samp <- matrix(0,num_sub,bootSamp)
 
-  D <- t(Dt)
+  loading_matrix <- t(tLoadingMatrix)
   cat('\n')
 
   # Bootstrap samples of the data by randomly sample subjects with replacement
-  for (i in 1:Bsamp){
-    ransamp <- sample(1:nsub, size = nsub, replace = TRUE)
+  for (i in 1:bootSamp){
+    ransamp <- sample(1:num_sub, size = num_sub, replace = TRUE)
     rand_samp[,i] = ransamp
   }
 
   # Get the Bootstrapped Samples
-  for (i in 1:Bsamp){
+  for (i in 1:bootSamp){
 
     # Print current bootstrapping iteration
-    cat('\r', 'Bootstrap Sample:', i, '/', Bsamp)
+    cat('\r', 'Bootstrap Sample:', i, '/', bootSamp)
 
     tryCatch(expr = {
 
       # Randomly sampled subjects
-      subind <- rand_samp[,i]
+      subject_index <- rand_samp[,i]
 
       # Index data using bootstrap samples
-      xB <- x[subind]
-      yB <- y[subind]
-      MB <- M_tilde[subind,]
+      x_indexed <- x[subject_index]
+      y_indexed <- y[subject_index]
+      M_indexed <- M_reduced[subject_index,]
 
       # Create matrices for PDM weights and Thetas
-      w_n <- matrix(0, dim(M_tilde)[2], nPDM)
-      theta_n <- matrix(0, 4, nPDM)
+      weights_from_boot_sample <- matrix(0, dim(M_reduced)[2], nPDM)
+      path_coeff_from_boot_sample <- matrix(0, 4, nPDM)
 
       ## Loop through the PDMs for each sample
       ## Bootstrap and calculate EACH PDM from resampled Data
 
       for (k in 1:nPDM){
         if (k==1){
-          boot_jpdmn_result <-  .PDMNboot(x = xB,
-                                          y = yB,
-                                          m = MB,
+          boot_jpdmn_result <-  .PDMNboot(x = x_indexed,
+                                          y = y_indexed,
+                                          m = M_indexed,
                                           W = NULL,
-                                          initialValues = WMi[k])
-          w_n[,k] <- boot_jpdmn_result[['weights']]
-          theta_n[,k] <- boot_jpdmn_result[['theta']]
+                                          initialValues = initValues[k])
+          weights_from_boot_sample[,k] <- boot_jpdmn_result[['weights']]
+          path_coeff_from_boot_sample[,k] <- boot_jpdmn_result[['path_coeff']]
         } else {
-          boot_jpdmn_result <-  .PDMNboot(x  = xB,
-                                          y = yB,
-                                          m = MB,
-                                          W = W[1:k-1],
-                                          initialValues = WMi[k])
-          w_n[,k] <- boot_jpdmn_result[['weights']]
-          theta_n[,k] <- boot_jpdmn_result[['theta']]
+          boot_jpdmn_result <-  .PDMNboot(x  = x_indexed,
+                                          y = y_indexed,
+                                          m = M_indexed,
+                                          W = redFeatWeights[1:k-1],
+                                          initialValues = initValues[k])
+          weights_from_boot_sample[,k] <- boot_jpdmn_result[['weights']]
+          path_coeff_from_boot_sample[,k] <- boot_jpdmn_result[['path_coeff']]
         }
       }
 
-      # Compute jointPDM
-      a_n <- theta_n[3,]
-      b_n <- theta_n[4,]
+      # get path coefficients
+      a_n <- path_coeff_from_boot_sample[3,]
+      b_n <- path_coeff_from_boot_sample[4,]
 
       # Calculate the Full Feature Weight Vector
       # [p x b] x ( [b x npdm] x [npdm x 1] ) = [p x 1]
-      jWboot[,i] <- (D %*% (w_n %*% (a_n * b_n)))
-      jTboot[,i,] <- theta_n
+      jointPDM_weight_samples[,i] <- (loading_matrix %*% (weights_from_boot_sample %*% (a_n * b_n)))
+      jointPDM_path_coeff_samples[,i,] <- path_coeff_from_boot_sample
 
     },
     error=function(e){})
   }
 
   # Remove any columns of zeroes that may have happened due to iteration skipping
-  jWboot = jWboot[,-(which(colSums(jWboot)==0))]
-  jTboot = jTboot[,-(which(colSums(jWboot)==0)),]
+  jointPDM_weight_samples = jointPDM_weight_samples[,-(which(colSums(jointPDM_weight_samples)==0))]
+  jointPDM_path_coeff_samples = jointPDM_path_coeff_samples[,-(which(colSums(jointPDM_weight_samples)==0)),]
 
 
   ## Calculate the 95% CI, mean and std for the bootstrapped joint feature weights
 
 
-  for (z in 1:p){
-    ci <- stats::t.test(jWboot[z,])
-    jweight_stats[[z]][['95CI_lb']] <- ci$conf.int[1]
-    jweight_stats[[z]][['95CI_ub']] <- ci$conf.int[2]
-    jweight_stats[[z]][['mean']] <- mean(jWboot[z,])
-    jweight_stats[[z]][['sd']] <- stats::sd(jWboot[z,])
-    names(jweight_stats)[z] <- sprintf('feat_%d',z)
+  for (z in 1:num_feat){
+    ci <- stats::t.test(jointPDM_weight_samples[z,])
+    jointPDM_weight_stats[[z]][['95CI_lb']] <- ci$conf.int[1]
+    jointPDM_weight_stats[[z]][['95CI_ub']] <- ci$conf.int[2]
+    jointPDM_weight_stats[[z]][['mean']] <- mean(jointPDM_weight_samples[z,])
+    jointPDM_weight_stats[[z]][['sd']] <- stats::sd(jointPDM_weight_samples[z,])
+    names(jointPDM_weight_stats)[z] <- sprintf('feat_%d',z)
   }
 
-  return(list('stats' = jweight_stats, 'Wboot' = jWboot, 'Tboot'= jTboot))
+  return(list('weightStats' = jointPDM_weight_stats,
+              'weightBootSamples' = jointPDM_weight_samples,
+              'pathBootSamples'= jointPDM_path_coeff_samples))
 
 }

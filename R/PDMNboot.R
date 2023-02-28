@@ -9,7 +9,7 @@
 #' @param m matrix (N x b) Mediator matrix with reduced dimension space of b
 #' features
 #' @param W Weights of previously calculated directions of mediation
-#' @param initialValues matrix (b x q) Initial weights used for PDM calculation
+#' @param initialValues matrix (b x k) Initial weights used for PDM calculation
 #' optimization
 #'
 #' @importFrom pracma fmincon
@@ -19,7 +19,7 @@
 #' \itemize{
 #'     \item weights: 95% CI, mean, and std of bootstrap results for each
 #'     feature weight for each PDM
-#'     \item theta: pathway effects from each bootstrapped sample
+#'     \item path_coeff: pathway effects from each bootstrapped sample
 #'     }
 #'
 #' @noRd
@@ -34,10 +34,9 @@
   ## Set Up the initial variables
 
 
-  len <- dim(m)[2] # Number of mediators (or SVD components)
-  N1 <- length(W)  # Number of PDMs previously calculated
-  J <- rep(1, dim(m)[1])  # Design matrix for first regression
-  X1 <- cbind(J, x)
+  num_calc_pdms <- length(W)  # Number of PDMs previously calculated
+  vector_ones <- rep(1, dim(m)[1])  # Design matrix for first regression
+  X1 <- cbind(vector_ones, x)
 
   ## Create orthogonality constraints
 
@@ -45,19 +44,15 @@
   A <- NULL
   b <- NULL
 
-  # N1 is the number of PDMs already calculated
+  # num_calc_pdms is the number of PDMs already calculated
   # Not relevant for first PDM calculation
-  if (N1 > 0){
+  if (num_calc_pdms > 0){
 
-    #Create a matrix of previoulsy calculated weights
-    A <- matrix(0, len, N1)
-    for (i in 1:N1){
-      A[,i] <- W[[i]]
-    }
-    A  <- t(A)
+    # Unlist weight list
+    A <- t(matrix(unlist(W), ncol = num_calc_pdms))
 
     # Create a vector of zeroes for the orthogonality constraint
-    b <- rep(0,N1)
+    b <- rep(0,num_calc_pdms)
   }
 
 
@@ -77,27 +72,28 @@
   # Weights
   weights <- optim_result$par
 
-  # Find Gamma
-  gamma <- pracma::pinv(X1) %*% y
+  # Find total_effect
+  total_effect <- pracma::pinv(X1) %*% y
 
-  # Find Alpha: [n x b] x [b x 1]
-  mw_N <- m %*% weights
-  # Solve for alpha since M = X * alpha
-  alpha <- pracma::pinv(X1) %*% mw_N
+  # Find alpha_indirect_effect: [n x b] x [b x 1]
+  calc_pdm <- m %*% weights
+  # Solve for alpha since M = X * alpha_indirect_effect
+  alpha_indirect_effect <- pracma::pinv(X1) %*% calc_pdm
 
-  # Find Beta and Gamma'
-  X2 <- cbind(X1, mw_N)
+  # Find Beta and total_effect'
+  X2 <- cbind(X1, calc_pdm)
 
-  beta <- pracma::pinv(X2) %*% y
+  eq_coeff <- pracma::pinv(X2) %*% y
+  beta_indirect_effect <- eq_coeff[3]
+  direct_effect <- eq_coeff[2]
 
-  ab <- abs(alpha[2]*beta[3])
+  ab <- abs(alpha_indirect_effect[2]*beta_indirect_effect)
 
-  # theta = gamma, gamma' , alpha, beta
-  theta <- c(gamma[2], beta[2], alpha[2], beta[3])
-  w_N <- weights
+  # theta = total_effect, direct_effect , alpha_indirect_effect, beta
+  path_coeff <- c(total_effect[2], direct_effect, alpha_indirect_effect[2], beta_indirect_effect)
 
   # Return the final PDM weights and theta values
-  return(list('weights' = w_N, 'theta' = theta))
+  return(list('weights' = weights, 'path_coeff' = path_coeff))
 
 }
 
@@ -107,9 +103,9 @@
 # Objective Function for Optimization of max of |ab|
 objfun <- function(initialValues,m,y,X1){
 
-  mw_N <- m %*% initialValues
-  alpha <- pracma::pinv(X1) %*% mw_N
-  r <- mw_N - X1 %*% alpha
+  calc_pdm <- m %*% initialValues
+  alpha <- pracma::pinv(X1) %*% calc_pdm
+  r <- calc_pdm - X1 %*% alpha
   beta <- (sum(r*y)) /(sum(r*r))
   mval <- -abs(alpha[2]*beta)
 

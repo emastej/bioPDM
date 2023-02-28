@@ -4,43 +4,50 @@
 #'
 #' @param x vector (N x 1) Treatment vector for N Subjects
 #' @param y vector (N x 1) Outcome vector for N Subjects
-#' @param M_tilde matrix (N x b) Mediator matrix with reduced dimension space of
+#' @param M_reduced matrix (N x b) Mediator matrix with reduced dimension space of
 #'  b features
-#' @param W matrix (b x q) Weights for each b feature calculated for each of the
-#'  q PDMs
-#' @param Dt matrix (p x b)' Eigenvector space from SVD that maps M_tilde back
-#' to the original Mediator matrix
-#' @param WMi matrix (b x q) Initial weights used for PDM calculation optimization
-#' @param Bsamp Number of bootstrap samples
-#' @param whPDM Vector of indices to determine which PDM to bootstrap OR 'JointPDM'
+#' @param redFeatWeights matrix (b x k) Weights for each b feature calculated for each of the
+#'  k PDMs
+#' @param tLoadingMatrix matrix (p x b)' Eigenvector space from SVD that maps
+#' M_reduced back to the original Mediator matrix
+#' @param initValues matrix (b x k) Initial weights used for PDM calculation optimization
+#' @param bootSamp Number of bootstrap samples
+#' @param whichPDM Vector of indices to determine which PDM to bootstrap OR 'JointPDM'
 #'
 #' @return A list
 #' \itemize{
-#'     \item stats - 95% CI, mean, and std of bootstrap results for each
+#'     \item weightStats - 95% CI, mean, and std of bootstrap results for each
 #'     feature weight for each PDM
-#'     \item Wboot - Bootstrapped weights
-#'     \item Tboot - Bootstrapped parameters
+#'     \item weightBootSamples - Bootstrapped weight samples
+#'     \item pathBootSamples - Bootstrapped mediation path coefficients
 #'     }
 #'
 #' @noRd
 #'
 
-.runBootstrapPDM <- function(x, y, M_tilde, W , Dt, WMi, Bsamp, whPDM){
+.runBootstrapPDM <- function(x,
+                             y,
+                             M_reduced,
+                             redFeatWeights,
+                             tLoadingMatrix,
+                             initValues,
+                             bootSamp,
+                             whichPDM){
 
   ## Bootstrap individual PDMs
 
 
-  if (is.numeric(whPDM)){
-    cat("\nPDMs selected for bootstrap: ", whPDM,"\n",sep="\t")
+  if (is.numeric(whichPDM)){
+    cat("\nPDMs selected for bootstrap: ", whichPDM,"\n",sep="\t")
 
     # Set empty lists to save results
-    w_stats = Wboot = Tboot = vector('list', length(whPDM))
+    weight_stats = weight_samples = path_coeff_samples = vector('list', length(whichPDM))
 
     # Loop through the PDMs to bootstrap.
-    for (k in whPDM){
+    for (k in whichPDM){
 
       cat('\n')
-      cat('\n Bootstrapping PDM', k, 'with', Bsamp, 'samples')
+      cat('\n Bootstrapping PDM', k, 'with', bootSamp, 'samples')
       cat('\n')
 
       # First PDM
@@ -48,42 +55,42 @@
 
         boot_pdm_results <- .BootPDM(x = x,
                                      y = y,
-                                     M_tilde = M_tilde,
-                                     W = NULL,
-                                     Dt = Dt,
-                                     Bsamp = Bsamp,
-                                     WMi = WMi[1])
+                                     M_reduced = M_reduced,
+                                     redFeatWeights = NULL,
+                                     tLoadingMatrix = tLoadingMatrix,
+                                     bootSamp = bootSamp,
+                                     initValues = initValues[1])
 
         # All other PDMs
       } else {
 
         boot_pdm_results <- .BootPDM(x = x,
                                      y = y,
-                                     M_tilde = M_tilde,
-                                     W = W[1:k-1],
-                                     Dt = Dt,
-                                     Bsamp = Bsamp,
-                                     WMi = WMi[k])
+                                     M_reduced = M_reduced,
+                                     redFeatWeights = redFeatWeights[1:k-1],
+                                     tLoadingMatrix = tLoadingMatrix,
+                                     bootSamp = bootSamp,
+                                     initValues = initValues[k])
       }
 
-      w_stats[[k]] <- boot_pdm_results[['stats']]
-      Wboot[[k]] <- boot_pdm_results[['Wboot']]
-      Tboot[[k]] <- boot_pdm_results[['Tboot']]
+      weight_stats[[k]] <- boot_pdm_results[['weightStats']]
+      weight_samples[[k]] <- boot_pdm_results[['weightBootSamples']]
+      path_coeff_samples[[k]] <- boot_pdm_results[['pathBootSamples']]
 
       # Set element names
-      names(w_stats)[k] <- sprintf('pdm_%d',k)
-      names(Wboot)[k] <- sprintf('pdm_%d',k)
-      names(Tboot)[k] <- sprintf('pdm_%d',k)
+      names(weight_stats)[k] <- sprintf('pdm_%d',k)
+      names(weight_samples)[k] <- sprintf('pdm_%d',k)
+      names(path_coeff_samples)[k] <- sprintf('pdm_%d',k)
     }
 
 
     ## Joint PDM
 
 
-  } else if (is.character(whPDM) && whPDM == 'jointPDM'){
+  } else if (is.character(whichPDM) && whichPDM == 'jointPDM'){
 
     # Set variable lists
-    w_stats = Wboot = Tboot = list()
+    weight_stats = weight_samples = path_coeff_samples = list()
 
     cat('\n')
     cat('\nPDM selected for bootstrap: JointPDM')
@@ -91,19 +98,20 @@
     # Bootstrap JointPDM
     boot_joint_results <- .BootPDMJoint(x = x,
                                         y = y,
-                                        M_tilde = M_tilde,
-                                        W = W,
-                                        Dt = Dt,
-                                        Bsamp = Bsamp,
-                                        WMi = WMi)
+                                        M_reduced = M_reduced,
+                                        redFeatWeights = redFeatWeights,
+                                        tLoadingMatrix = tLoadingMatrix,
+                                        bootSamp = bootSamp,
+                                        initValues = initValues)
 
-    w_stats[['jpdm']] = boot_joint_results[['stats']]
-    Wboot[['jpdm']] = boot_joint_results[['Wboot']]
-    Tboot[['jpdm']] = boot_joint_results[['Tboot']]
+    weight_stats[['jpdm']] = boot_joint_results[['weightStats']]
+    weight_samples[['jpdm']] = boot_joint_results[['weightBootSamples']]
+    path_coeff_samples[['jpdm']] = boot_joint_results[['pathBootSamples']]
 
   }
 
-  return(list('stats' = w_stats, 'Wboot' = Wboot, 'Tboot' = Tboot))
+  return(list('weightStats' = weight_stats, 'weightBootSamples' = weight_samples,
+              'pathBootSamples' = path_coeff_samples))
 
 }
 

@@ -4,10 +4,10 @@
 \alias{printMedPathCoeff}
 \title{printMedPathCoeff}
 \usage{
-printMedPathCoeff(theta)
+printMedPathCoeff(pathCoeff)
 }
 \arguments{
-\item{theta}{List of mediation path coefficients for each PDM}
+\item{pathCoeff}{List of mediation path coefficients for each PDM}
 }
 \value{
 A printed, formatted table of the mediation path coefficient values

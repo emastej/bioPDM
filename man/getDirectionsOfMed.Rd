@@ -10,30 +10,32 @@ getDirectionsOfMed(
   doJointPDM = TRUE,
   doBootPDM = FALSE,
   doBootJPDM = FALSE,
-  BootSamp = 1000,
-  returnBootsamples = FALSE,
+  bootSamp = 1000,
+  returnBootSamples = FALSE,
   saveResults = FALSE,
   saveDir = NULL,
-  notes = NULL
+  notes = NULL,
+  numCores = 1
 )
 }
 \arguments{
-\item{data_list}{List containing X, Y, M, M_tilde, Dt, and exVar elements}
+\item{data_list}{List containing X, Y, M, M_reduced, tLoadingMatrix,
+and exVar elements}
 
 \item{nPDM}{Number of PDMs to calculate}
 
 \item{doJointPDM}{Calculate the JointPDM. Can be True or False}
 
-\item{doBootPDM}{Bootstrap samples to calculate radiomic feature weight stats
-(95\% CI, mean, standard deviation). Can be True or False.}
+\item{doBootPDM}{Bootstrap samples to calculate feature weight stats
+(95\% CI, mean, standard deviation). Can be True or False}
 
 \item{doBootJPDM}{Bootstrap samples to calculate feature weight stats
 (95\% CI, mean, standard deviation) for JointPDM. Can be True or False}
 
-\item{BootSamp}{Number of bootstrap samples}
+\item{bootSamp}{Number of bootstrap samples}
 
-\item{returnBootsamples}{Return the PDM weights and theta calculated from
-bootstrapped samples. Can be True or False.}
+\item{returnBootSamples}{Return the PDM weights and path coefficients
+calculated from bootstrapped samples. Can be True or False}
 
 \item{saveResults}{Save final list and a .txt file with parameters and any
 free text notes}
@@ -42,38 +44,41 @@ free text notes}
 
 \item{notes}{Parameter to write a free text note that will be saved in .txt
 file (if saveResults = TRUE)}
+
+\item{numCores}{Number of cores to use for parallel execution. Default is
+a single core}
 }
 \value{
 A list
 \itemize{
-\item w_k - matrix (b x q) Weights for each b feature calculated for each
-of the q PDMs
-\item w_k*Dt - matrix (p x q) Weights mapped back onto original Mediator
+\item redFeatWeights - matrix (b x k) Weights for each reduced b feature
+calculated for each of the k PDMs
+\item featWeights - matrix (p x k) Weights mapped back onto original Mediator
 Matrix
-\item JointW - vector (p x 1) Weights for the JointPDM. Each Mediator
+\item jointWeights - vector (p x 1) Weights for the JointPDM. Each Mediator
 feature has one weight (if applicable)
-\item Theta - matrix (5 x q) Mediation Path Coefficients for each of the
-q PDMs (c, c', a, b, ab)
+\item pathCoeff - matrix (5 x k) Mediation Path Coefficients for each of the
+k PDMs (c, c', a, b, ab)
 \item PDMk - vector (p x 1) PDM vector for each k PDM
 \item JointPDM - vector (p x 1) JointPDM
 \item Boot - List of bootstrap results (if applicable)
 \itemize{
-\item w_kStats -  95\% CI, mean, and standard deviation
+\item featWeightStats -  95\% CI, mean, and standard deviation
 (for each feature for each PDM) calculated from the PDM weights
 generated from bootstrapped samples
-\item w_kSamples -  The PDM weights generated from bootstrapped
-samples (from which the w_kStats were calculated)
-\item ThetaSamples - Resulting mediation pathway coefficients from
+\item featWeightSamples -  The PDM weights generated from bootstrapped
+samples (from which the featWeightStats were calculated)
+\item pathCoeffSamples - Resulting mediation pathway coefficients from
 each bootstrapped sample
-\item JointWStats - 95\% CI, mean, and standard deviation
+\item jointWeightStats - 95\% CI, mean, and standard deviation
 (for each feature) calculated from JointW weights generated from
 bootstrapped results
-\item JointWSamples - The JointPDM weights generated from bootstrapped
-samples (from which the JointWStats were calculated)
+\item jointWeightSamples - The JointPDM weights generated from bootstrapped
+samples (from which the jointWeightStats were calculated)
 }
 }
 }
 \description{
-Calculates radiomic-based Principal Directions of Mediation
+Calculates Principal Directions of Mediation
 (PDMs) that mediate the effect of an exposure on an outcome.
 }

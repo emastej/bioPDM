@@ -2,7 +2,7 @@
 #'
 #' @description Plots mediation path coefficients of a, b, and |ab|
 #'
-#' @param theta List of mediation path coefficients for each PDM
+#' @param pathCoeff List of mediation path coefficients for each PDM
 #'
 #' @importFrom graphics par
 #'
@@ -13,24 +13,24 @@
 #'
 
 
-plotMedPathCoeff <- function(theta){
+plotMedPathCoeff <- function(pathCoeff){
 
-  if ('w_k' %in% names(theta)){
-    stop('This function only accepts $Theta list.
+  if ('redFeatWeights' %in% names(pathCoeff)){
+    stop('This function only accepts $pathCoeff list.
          Do not input entire output list from getDirectionsofMed()')
   }
 
   # Number of PDMs
-  num <- length(theta)
+  num <- length(pathCoeff)
 
-  # Unlist theta
-  theta <- matrix(unlist(theta), nrow = 5, ncol = num)
+  # Unlist pathCoeff
+  pathCoeff <- matrix(unlist(pathCoeff), nrow = 5, ncol = num)
 
   # Subplot
   graphics::par(mfrow=c(1,3))
 
   # Plot Path A
-  plot(theta[3,],
+  plot(pathCoeff[3,],
        type = 'o',
        col = 'red',
        lwd = 4,
@@ -42,7 +42,7 @@ plotMedPathCoeff <- function(theta){
        cex.axis = 1.5)
 
   # Plot Path B
-  plot(theta[4,],
+  plot(pathCoeff[4,],
        type = 'o',
        col = 'blue',
        lwd = 4,
@@ -54,7 +54,7 @@ plotMedPathCoeff <- function(theta){
        cex.axis = 1.5)
 
   # Plot Path AB
-  plot(abs(theta[5,]),
+  plot(abs(pathCoeff[5,]),
        type = 'o',
        col = 'green',
        lwd = 4,

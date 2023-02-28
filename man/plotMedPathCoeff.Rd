@@ -4,10 +4,10 @@
 \alias{plotMedPathCoeff}
 \title{plotMedPathCoeff}
 \usage{
-plotMedPathCoeff(theta)
+plotMedPathCoeff(pathCoeff)
 }
 \arguments{
-\item{theta}{List of mediation path coefficients for each PDM}
+\item{pathCoeff}{List of mediation path coefficients for each PDM}
 }
 \value{
 A figure with 3 subplots showing how Path A (red), Path B (blue),
