@@ -61,9 +61,7 @@
     b <- rep(0, num_calc_pdms)
   }
 
-
   ## Find optimal PDM weight values
-
 
   # Set max_indirect_effect to 0. If |ab| > 0, then max_indirect_effect will be replaced
   max_indirect_effect <- 0
@@ -82,76 +80,91 @@
   # Parallelized loop
   results <- parallel::parLapply(cluster, 1:Z, fun = function (k) {
 
-    # Error Handling (bypass iterations where the WM cause a complex
-    # eigenvalue error)
-    tryCatch({
+    # Generate random values until fmincon() returns non-imaginary
+    # results
+    start_user_time <- proc.time()[["user.self"]]
+    success <- FALSE
 
-      # Error Handling (Bypass iterations that take way too long)
-      # I assume this is from being caught in a local minimum
-      tryCatch(
-        expr = {
-          R.utils::withTimeout({
+    while (!success & ((proc.time()[["user.self"]] - start_user_time) <= 100)) {
 
-            # Generate random initial values where mu = 0 and std = 1
-            rand_init_vars <- stats::rnorm(num_M_feat, 0, 1)
-            rand_init_vars <- rand_init_vars/sqrt(sum(rand_init_vars^2))
+      # Generate random initial values where mu = 0 and std = 1
+      rand_init_vars <- stats::rnorm(num_M_feat, 0, 1)
+      rand_init_vars <- rand_init_vars/sqrt(sum(rand_init_vars^2))
 
-            WM <- rand_init_vars
+      WM <- rand_init_vars
 
-            # Find optimum weights to maximize ab
-            optim_result <- pracma::fmincon(WM, objfun,
-                                            m = m,
-                                            y = y,
-                                            X1 = X1,
-                                            Aeq = A,
-                                            beq = b,
-                                            heq = ceq)
+      optim_result <- tryCatch({
 
-            # Weights
-            feat_weights <- optim_result$par
+        # Find optimum weights to maximize ab
+        result <- pracma::fmincon(WM, objfun,
+                                  m = m,
+                                  y = y,
+                                  X1 = X1,
+                                  Aeq = A,
+                                  beq = b,
+                                  heq = ceq)
 
-            # Solve for Total Effect aka Gamma (y = gamma * x)
-            total_effect <- pracma::pinv(X1) %*% y
+        list("success" = TRUE, "result" = result)
+
+      }, error = function(e) {
+        list("success" = FALSE, result = NA)
+      })
+
+      if (optim_result[["success"]]) {
+        success <- TRUE
+      }
+
+    }
+
+    # If no non-complex results are found within timeout length, return NULL
+    if (!success) {
+      warning("Some random number generation for optimization failed, results are fewer than expected")
+      return(NULL)
+    } else {
+      optim_result <- optim_result[["result"]]
+    }
+
+    # Weights
+    feat_weights <- optim_result$par
+
+    # Solve for Total Effect aka Gamma (y = gamma * x)
+    total_effect <- pracma::pinv(X1) %*% y
 
 
-            # calc_pdm is the calculated PDM from the calculated weights
-            calc_pdm <- m %*% feat_weights
+    # calc_pdm is the calculated PDM from the calculated weights
+    calc_pdm <- m %*% feat_weights
 
-            # Solve for Alpha: [n x b] x [b x 1] (M = alpha * X)
-            alpha_indirect_effect <- pracma::pinv(X1) %*% calc_pdm
+    # Solve for Alpha: [n x b] x [b x 1] (M = alpha * X)
+    alpha_indirect_effect <- pracma::pinv(X1) %*% calc_pdm
 
-            # Solve for Beta and Direct Effect aka Gamma' (y = beta * M + gamma' * X)
-            X2 <- cbind(X1, calc_pdm)
-            eq_coeff <- pracma::pinv(X2) %*% y
-            beta_indirect_effect <- eq_coeff[3]
-            direct_effect <- eq_coeff[2]
+    # Solve for Beta and Direct Effect aka Gamma' (y = beta * M + gamma' * X)
+    X2 <- cbind(X1, calc_pdm)
+    eq_coeff <- pracma::pinv(X2) %*% y
+    beta_indirect_effect <- eq_coeff[3]
+    direct_effect <- eq_coeff[2]
 
-            # Quick Proof
-            # y = beta[1] + beta[2]*x + beta[3]*m
-            # where beta[1] = beta_0, beta[2] = c', beta[3] = b
+    # Quick Proof
+    # y = beta[1] + beta[2]*x + beta[3]*m
+    # where beta[1] = beta_0, beta[2] = c', beta[3] = b
 
-            # Solve for Indirect Effect
-            indirect_effect <- abs(alpha_indirect_effect[2]*beta_indirect_effect)
+    # Solve for Indirect Effect
+    indirect_effect <- abs(alpha_indirect_effect[2]*beta_indirect_effect)
 
-            # If indirect_effect > max_indirect_effect, Keep that iteration info
-            if (indirect_effect > max_indirect_effect){
-              max_indirect_effect <- indirect_effect
-              # path_coeff = gamma, gamma' , alpha, beta
-              path_coeff <- c(total_effect[2], direct_effect,
-                         alpha_indirect_effect[2], beta_indirect_effect)
-              w_k <- feat_weights
-              WM_init <- rand_init_vars
-            }
+    # If indirect_effect > max_indirect_effect, Keep that iteration info
+    if (indirect_effect > max_indirect_effect){
+      max_indirect_effect <- indirect_effect
+      # path_coeff = gamma, gamma' , alpha, beta
+      path_coeff <- c(total_effect[2], direct_effect,
+                 alpha_indirect_effect[2], beta_indirect_effect)
+      w_k <- feat_weights
+      WM_init <- rand_init_vars
+    }
 
-            # Return final PDM weights, theta values,  and initial values
-            return(list('weights' = w_k,
-                        'path_coeff' = path_coeff,
-                        'init_weights' = WM_init,
-                        'max_indirect_effect' = max_indirect_effect))
-
-          },
-          timeout = 2.3)},
-        TimeoutException = function(ex) {})}, error=function(e){})
+    # Return final PDM weights, theta values,  and initial values
+    return(list('weights' = w_k,
+                'path_coeff' = path_coeff,
+                'init_weights' = WM_init,
+                'max_indirect_effect' = max_indirect_effect))
 
   })
 
