@@ -65,7 +65,8 @@ getDirectionsOfMed <- function(data_list = NULL,
                                saveResults = FALSE,
                                saveDir = NULL,
                                notes = NULL,
-                               numCores = 1){
+                               numCores = 1,
+                               timeout = 5) {
 
 
   ## Check Input Data
@@ -99,7 +100,8 @@ getDirectionsOfMed <- function(data_list = NULL,
                       tLoadingMatrix = data_list[['tLoadingMatrix']],
                       nPDM = nPDM,
                       doJointPDM = doJointPDM,
-                      numCores = numCores)
+                      numCores = numCores,
+                      timeout = timeout)
 
   # Remove Joint W from the list if JointPDM is not requested to be calculated
   if (doJointPDM == FALSE){

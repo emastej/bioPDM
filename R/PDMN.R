@@ -31,7 +31,7 @@
 #'
 
 
-.PDMN <- function(x, y, m, W, numCores){
+.PDMN <- function(x, y, m, W, numCores, timeout) {
 
   ## Set Up the initial variables
 
@@ -78,37 +78,42 @@
                           envir = environment())
 
   # Parallelized loop
-  results <- parallel::parLapply(cluster, 1:Z, fun = function (k) {
+  # results <- parallel::parLapply(cluster, 1:Z, fun = function (k) {
+  results <- lapply(1:Z, FUN = function (k, timeout) {
 
     # Generate random values until fmincon() returns non-imaginary
     # results
-    start_user_time <- proc.time()[["user.self"]]
+    start_user_time <- proc.time()[["elapsed"]]
     success <- FALSE
 
-    while (!success & ((proc.time()[["user.self"]] - start_user_time) <= 100)) {
+    while (!success &
+           ((proc.time()[["elapsed"]] - start_user_time) <= 100)) {
 
       # Generate random initial values where mu = 0 and std = 1
       rand_init_vars <- stats::rnorm(num_M_feat, 0, 1)
-      rand_init_vars <- rand_init_vars/sqrt(sum(rand_init_vars^2))
+      rand_init_vars <- rand_init_vars / sqrt(sum(rand_init_vars^2))
 
       WM <- rand_init_vars
 
       optim_result <- tryCatch({
 
-        # Find optimum weights to maximize ab
-        result <- pracma::fmincon(WM, objfun,
-                                  m = m,
-                                  y = y,
-                                  X1 = X1,
-                                  Aeq = A,
-                                  beq = b,
-                                  heq = ceq)
+          result <- R.utils::withTimeout(pracma::fmincon(WM, objfun,
+                                                         m = m,
+                                                         y = y,
+                                                         X1 = X1,
+                                                         Aeq = A,
+                                                         beq = b,
+                                                         heq = ceq),
+                                         timeout = 2)
 
-        list("success" = TRUE, "result" = result)
+          list("success" = TRUE, result = result)
 
-      }, error = function(e) {
-        list("success" = FALSE, result = NA)
-      })
+        }, error = function(e) {
+
+          list("success" = FALSE, result = NA)
+
+        })
+
 
       if (optim_result[["success"]]) {
         success <- TRUE
@@ -166,7 +171,7 @@
                 'init_weights' = WM_init,
                 'max_indirect_effect' = max_indirect_effect))
 
-  })
+  }, timeout = timeout)
 
   # Stop cluster
   parallel::stopCluster(cluster)

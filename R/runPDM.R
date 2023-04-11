@@ -34,7 +34,8 @@
 #'
 
 
-.runPDM <- function(x, y, M, tLoadingMatrix, nPDM, doJointPDM, numCores){
+.runPDM <- function(x, y, M, tLoadingMatrix, nPDM, doJointPDM, numCores,
+                    timeout){
 
 
   ## Calculate the Principal Directions of Mediation
@@ -65,7 +66,7 @@
     cat(' ', k)
 
     # Use PDMN function to calculate each PDM. Output is a list
-    pdmk_results <- .PDMN(x, y, m = M, W = Feat_weights, numCores)
+    pdmk_results <- .PDMN(x, y, m = M, W = Feat_weights, numCores, timeout)
 
     # Weights for kth direction
     weights_k <- pdmk_results[['weights']]
