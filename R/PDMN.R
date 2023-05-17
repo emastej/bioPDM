@@ -78,8 +78,8 @@
                           envir = environment())
 
   # Parallelized loop
-  # results <- parallel::parLapply(cluster, 1:Z, fun = function (k) {
-  results <- lapply(1:Z, FUN = function (k, timeout) {
+  results <- parallel::parLapply(cluster, 1:Z, fun = function (k, timeout) {
+  # results <- lapply(1:Z, FUN = function (k, timeout) {
 
     # Generate random values until fmincon() returns non-imaginary
     # results
@@ -97,14 +97,11 @@
 
       optim_result <- tryCatch({
 
-          result <- R.utils::withTimeout(pracma::fmincon(WM, objfun,
-                                                         m = m,
-                                                         y = y,
-                                                         X1 = X1,
-                                                         Aeq = A,
-                                                         beq = b,
-                                                         heq = ceq),
-                                         timeout = 2)
+          # Limit time spent on this - if it fails just try again
+          result <- R.utils::withTimeout({
+            pracma::fmincon(WM, objfun, m = m, y = y, X1 = X1,
+                            Aeq = A, beq = b, heq = ceq)
+            }, timeout = timeout)
 
           list("success" = TRUE, result = result)
 
