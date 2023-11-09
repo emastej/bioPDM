@@ -21,6 +21,8 @@
 #' file (if saveResults = TRUE)
 #' @param numCores Number of cores to use for parallel execution. Default is
 #' a single core
+#' @param timeout The amount of time allotted to the optimization algorithm to
+#' find the optimal solution
 #'
 #' @return A list
 #' \itemize{

@@ -17,3 +17,7 @@ Imports:
     pracma,
     R.utils,
     stats
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
