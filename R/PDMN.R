@@ -11,6 +11,7 @@
 #' @param W Weights of previously calculated directions of mediation
 #' @param numCores Number of cores to use for parallel execution. Default is
 #' a single core.
+#' @param timeout NEED TO ADD DOCUMENTATION
 #'
 #' @importFrom R.utils withTimeout
 #' @importFrom stats rnorm
@@ -65,7 +66,6 @@
 
   # Set max_indirect_effect to 0. If |ab| > 0, then max_indirect_effect will be replaced
   max_indirect_effect <- 0
-
 
   # Initialize clusters
   cluster <- parallel::makeCluster(numCores)

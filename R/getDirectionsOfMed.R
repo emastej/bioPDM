@@ -136,7 +136,9 @@ getDirectionsOfMed <- function(data_list = NULL,
                                        tLoadingMatrix = data_list[['tLoadingMatrix']],
                                        initValues = pdm_list[['initValues']],
                                        bootSamp = bootSamp,
-                                       whichPDM = 1:nPDM)
+                                       whichPDM = 1:nPDM,
+                                       numCores = numCores,
+                                       timeout = timeout)
 
     } else {
       stop('Missing data to perform PDM bootstrapping')
