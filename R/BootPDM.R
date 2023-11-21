@@ -135,8 +135,8 @@
       weight_samples_k[, i] <- results[[i]][['weight_samples_k']]
       path_samples_k[, i] <- results[[i]][['path_samples_k']]
     } else {
-      weight_stats_k[, i] <- NA
-      path_samples_k[, i] <- NA
+      weight_samples_k[, i] <- rep(NA, length(weight_samples_k[,i]))
+      path_samples_k[, i] <- rep(NA, length(path_samples_k[,i]))
     }
   }
 
@@ -148,7 +148,7 @@
 
   # Warn users about unsuccessful iterations
   if (sum(!successes) > 0) {
-    warning(sum(!succeses), " bootstrap samples were unsuccessful")
+    warning(sum(!successes), " bootstrap samples were unsuccessful")
   }
 
   # Remove any empty that may exist due to iteration skipping
