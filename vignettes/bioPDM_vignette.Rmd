@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(radPDM)
-library(dplyr)
+
 library(ggplot2)
 ```
 
@@ -134,21 +134,21 @@ More details on the functions can be found in the package function manual.
 
 
 ```{r, echo=FALSE, warning = FALSE,out.width = '100%', fig.align = 'center', fig.cap= "radPDM uses high dimensional mediation analysis to explore the pathway between an exposure on an outcome through a mediator. In a mediated model, the total effect, c, an exposure has on an outcome is decomposed into an indirect effect, a*b, and direct effect, c’."}
-knitr::include_graphics("~/mediation_schematic.png")
+knitr::include_graphics("vignette_figures/mediation_schematic.png")
 ```
 
 ```{r, echo=FALSE, warning = FALSE, out.width = '100%', fig.cap= "Visual representation of the causal relationship between X, M, and Y", fig.align='center'}
-knitr::include_graphics("~/data_assumptions.png")
+knitr::include_graphics("vignette_figures/data_assumptions.png")
 
 ```
 
 ```{r, echo=FALSE, warning = FALSE, out.width = '100%', fig.cap= "Visual representation of the causal relationship between the data after the PDMs have been calculated.", fig.align='center'}
-knitr::include_graphics("~/post_bioPDM.png")
+knitr::include_graphics("vignette_figures/post_bioPDM.png")
 
 ```
 
 ```{r, echo=FALSE, warning = FALSE, out.width = '100%', fig.cap= "Workflow for radPDM to calculate principal directions of mediation (PDM). X is the exposure, Y is the phenotype of interest outcome, and M is high dimensional radiomic mediator.", fig.align='center'}
-knitr::include_graphics("~/code_schematic.png")
+knitr::include_graphics("vignette_figures/code_schematic.png")
 
 ```
 
@@ -167,7 +167,7 @@ df <- read.csv("vignette_data.csv")
 # Specify the exposure (X), the outcome (Y), and the mediator (M)
 X <- as.numeric(df$IDH)
 Y <- df$martin
-M <- select(df, -IDH, -martin)
+M <- dplyr::select(df, -IDH, -martin)
 
 # Display the summary statistics of Y 
 summary(Y)
@@ -186,7 +186,7 @@ The first step in radPDM is to reduce the dimension space of the mediator using 
 # library(radPDM) has already been installed 
 
 ## Reduce the dimensions of M
-#reduced_mediator <- radPDM::reduceMedDimension(treatment = X, outcome = Y, mediator = M)
+reduced_mediator <- radPDM::reduceMedDimension(treatment = X, outcome = Y, mediator = M)
 ```
 
 
@@ -200,7 +200,7 @@ The default parameter values for getDirectionsofMed() include calculating 5 $PDM
 
 ```{r, cache = TRUE}
 # Run getDirectionsOfMed() with default parameter values 
-#ex1_output <- radPDM::getDirectionsOfMed(data_list = reduced_mediator)
+ex1_output <- radPDM::getDirectionsOfMed(data_list = reduced_mediator, nPDM = 2)
 ```
 
 The ex1_output is a list that includes $w_{k,j}$, $D^{-1} w_{k,j}$ (weights after they have been mapped back to original mediator dimension space), $JointPDM$ $W_{j}$ weights, $Theta$ (the mediation path coefficients, $a, b, c, c'$, for each $PDM$), all $PDM$s, and $JointPDM$. Sections 3.4 and 3.5 show different ways to interact with and display output results. 
@@ -234,10 +234,10 @@ Finally, there is an option to save your outputs. The user is required to set th
 # Run getDirectionsOfMed() and save results 
 
 # Specifiy the directory to save results to
-#dir_to_save <- "~/"
+dir_to_save <- "~/"
 
 # Optional Parameter of free text notes
-#free_text <- "Using synthetic dataset, executed radPDM as an example for vignette"
+free_text <- "Using synthetic dataset, executed radPDM as an example for vignette"
 
 #ex3_output <- radPDM::getDirectionsOfMed(data_list = reduced_mediator, nPDM = 3,
 #                saveResults = TRUE, saveDir = dir_to_save, notes = free_text)
@@ -259,7 +259,7 @@ The final step of radPDM allows for the visualization of the mediation path coef
 
 ```{r, cache = TRUE}
 # Plot Theta (mediation path coefficients)
-#radPDM::plotMedPathCoeff(ex1_output$Theta) 
+radPDM::plotMedPathCoeff(ex1_output$pathCoeff) 
 ```
 
 
@@ -267,7 +267,7 @@ The final step of radPDM allows for the visualization of the mediation path coef
 
 ```{r, cache = TRUE}
 # Print Theta (mediation path coefficients)
-#radPDM::printMedPathCoeff(ex1_output$Theta) 
+radPDM::printMedPathCoeff(ex1_output$pathCoeff) 
 ```
 
 \subsection{Interpreting Mediation Path Coefficients}
@@ -284,14 +284,14 @@ When there is a positive $a$ coefficient, higher PDM values are associated with 
 # Plot PDM1 vs PDM2 using ggplot package
 
 # Make a data frame that includes 
-#plot_df <- data.frame(X, PDM1 = ex1_output$PDM1 , PDM2 = ex1_output$PDM2)
+plot_df <- data.frame(X, PDM1 = ex1_output$PDM1 , PDM2 = ex1_output$PDM2)
 
 # Plot PDM1 vs PDM2
 # Subject color corresponds to their X values (IDH status)
-#ggplot(plot_df, aes(x=PDM1, y=PDM2, col = as.factor(X))) + geom_point(size = 3) +  
-#  scale_color_manual(values=c("#FA573C", "#000000"), labels = c('WT', 'Mutation')) +
-#  labs(color = "IDH Status")+
-#  theme(axis.title=element_text(size=20))
+ggplot2::ggplot(plot_df, aes(x=PDM1, y=PDM2, col = as.factor(X))) + geom_point(size = 3) +  
+  scale_color_manual(values=c("#FA573C", "#000000"), labels = c('WT', 'Mutation')) +
+  labs(color = "IDH Status")+
+  theme(axis.title=element_text(size=20))
 ```
 
 \subsubsection{Example: What features contribute the most to PDM1?}
@@ -301,13 +301,13 @@ When there is a positive $a$ coefficient, higher PDM values are associated with 
 
 # Make a data frame that includes the radiomic feature names
 # And the absolute value of the feature weights
-#PDM1_weights <- data.frame(features = names(M), w_k = abs(ex1_output$`w_k*Dt`[[1]]))
+PDM1_weights <- data.frame(features = names(M), w_k = abs(ex1_output$featWeights[[1]]))
 
 # Sort by weight values in decreasing order
-#PDM1_weights <- PDM1_weights[order(-PDM1_weights[,2]), , drop = FALSE]  
+PDM1_weights <- PDM1_weights[order(-PDM1_weights[,2]), , drop = FALSE]  
 
 # Display the top 6 radiomic features that contribute the most to PDM1
-#head(PDM1_weights)
+head(PDM1_weights)
 ```
 
 \section*{References}

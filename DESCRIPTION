@@ -12,12 +12,13 @@ RoxygenNote: 7.2.1
 Imports: 
     doParallel,
     graphics,
-    NlcOptim,
     parallel,
     pracma,
     R.utils,
     stats
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    ggplot2,
+    dplyr
 VignetteBuilder: knitr
