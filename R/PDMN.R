@@ -16,8 +16,11 @@
 #' @importFrom stats rnorm
 #' @importFrom pracma fmincon
 #' @importFrom pracma pinv
-#' @importFrom doParallel
-#' @importFrom parallel
+#' @importFrom doParallel registerDoParallel
+#' @importFrom parallel makeCluster
+#' @importFrom parallel clusterExport
+#' @importFrom parallel parLapply
+#' @importFrom parallel stopCluster
 #'
 #' @return A list
 #' \itemize{

@@ -15,7 +15,8 @@ getDirectionsOfMed(
   saveResults = FALSE,
   saveDir = NULL,
   notes = NULL,
-  numCores = 1
+  numCores = 1,
+  timeout = 5
 )
 }
 \arguments{
@@ -47,6 +48,9 @@ file (if saveResults = TRUE)}
 
 \item{numCores}{Number of cores to use for parallel execution. Default is
 a single core}
+
+\item{timeout}{The amount of time allotted to the optimization algorithm to
+find the optimal solution}
 }
 \value{
 A list
