@@ -49,8 +49,9 @@ file (if saveResults = TRUE)}
 \item{numCores}{Number of cores to use for parallel execution. Default is
 a single core}
 
-\item{timeout}{The amount of time allotted to the optimization algorithm to
-find the optimal solution}
+\item{timeout}{Time allowed for optimization for each set of starting values.
+Reducing timeout may reduce time required for calculating PDMs, but reducing
+it too much may lead to reduced accuracy of results.}
 }
 \value{
 A list
