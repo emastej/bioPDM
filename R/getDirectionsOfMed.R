@@ -21,6 +21,9 @@
 #' file (if saveResults = TRUE)
 #' @param numCores Number of cores to use for parallel execution. Default is
 #' a single core
+#' @param timeout Time allowed for optimization for each set of starting values.
+#' Reducing timeout may reduce time required for calculating PDMs, but reducing
+#' it too much may lead to reduced accuracy of results.
 #'
 #' @return A list
 #' \itemize{

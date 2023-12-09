@@ -61,7 +61,7 @@
   optim_result <- tryCatch({
 
       # Limit time spent on this - if it fails just try again
-      result <- R.utils::withTimeout({
+      result <- # R.utils::withTimeout({
         pracma::fmincon(initialValues,
                         objfun,
                         m = m,
@@ -70,7 +70,7 @@
                         Aeq = A,
                         beq = b,
                         heq = ceq)
-        }, timeout = timeout)
+        # }, timeout = timeout)
 
       # Weights
       weights <- result$par
@@ -108,39 +108,6 @@
 
     })
 
-
-  # optim_result <- pracma::fmincon(initialValues,
-  #                                 objfun,
-  #                                 m = m,
-  #                                 y = y,
-  #                                 X1 = X1,
-  #                                 Aeq = A,
-  #                                 beq = b,
-  #                                 heq = ceq)
-  #
-  # # Weights
-  # weights <- optim_result$par
-
-  # # Find total_effect
-  # total_effect <- pracma::pinv(X1) %*% y
-
-  # # Find alpha_indirect_effect: [n x b] x [b x 1]
-  # calc_pdm <- m %*% weights
-  # # Solve for alpha since M = X * alpha_indirect_effect
-  # alpha_indirect_effect <- pracma::pinv(X1) %*% calc_pdm
-
-  # # Find Beta and total_effect'
-  # X2 <- cbind(X1, calc_pdm)
-  #
-  # eq_coeff <- pracma::pinv(X2) %*% y
-  # beta_indirect_effect <- eq_coeff[3]
-  # direct_effect <- eq_coeff[2]
-  #
-  # ab <- abs(alpha_indirect_effect[2]*beta_indirect_effect)
-  #
-  # # theta = total_effect, direct_effect , alpha_indirect_effect, beta
-  # path_coeff <- c(total_effect[2], direct_effect, alpha_indirect_effect[2], beta_indirect_effect)
-
   # Return the final PDM weights and theta values
   return(optim_result)
 
@@ -166,4 +133,3 @@ ceq <- function(initialValues,m,y,X1){
   return( t(initialValues) %*% initialValues - 1 )
 
 }
-

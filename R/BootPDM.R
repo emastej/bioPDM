@@ -13,7 +13,9 @@
 #' to the original Mediator matrix
 #' @param bootSamp Number of bootstrap samples
 #' @param initValues matrix (b x k) Initial weights used for PDM calculation optimization
-#' @param timeout NEED TO ADD DOCUMENTATION
+#' @param timeout Time allowed for optimization for each set of starting values.
+#' Reducing timeout may reduce time required for calculating PDMs, but reducing
+#' it too much may lead to reduced accuracy of results.
 #'
 #' @importFrom stats t.test
 #' @importFrom stats sd
@@ -67,7 +69,7 @@
   # Parallelized loop
   results <- parallel::parLapply(cluster, 1:bootSamp,
                                  fun = function (i, timeout) {
-  # results <- lapply(1:bootSamp, FUN = function (k, timeout) {
+  # results <- lapply(1:bootSamp, FUN = function (i, timeout) {
 
     # Generate random values until fmincon() returns non-imaginary
     # results
@@ -75,9 +77,9 @@
 
     # This timer is an "overall" in case a given data set is "weird" and
     # no amount of resampling generates values which yield non-imaginary
-    # results. If this fails, we warn users that they are recieving fewer BS
+    # results. If this fails, we warn users that they are receiving fewer BS
     # samples than they expected
-    while (((proc.time()[["elapsed"]] - start_user_time) <= 100)) {
+    while (((proc.time()[["elapsed"]] - start_user_time) <= 300)) {
 
       # Bootstrap samples of the data by randomly sampling subjects with
       # replacement
@@ -108,7 +110,7 @@
                       weights_from_boot_sample,
                     'path_samples_k' = path_coeff_from_boot_sample,
                     'subject_index' = subject_index,
-                    'iteration' = k,
+                    'iteration' = i,
                     'success' = TRUE))
 
       }
