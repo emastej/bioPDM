@@ -2,9 +2,9 @@ Package: bioPDM
 Title: Finds Networks of Biological Features that Mediate the effect of a binary exposure on a continuous outcome
 Version: 0.0.0.9000
 Authors@R: 
-    person("Emily", "Mastej", , "emily.mastej@cuanschutz.edu", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: Biological data principal direction of mediation (bioPDM) is a downstream -omic data analysis method that uses high dimensional mediation to explore the causal pathway between an exposure and an outcome through a multivariate mediator. The goal of bioPDM is to provide a method to perform mediation analysis on multivariate biological data where p >> n. The overall objective is to find groups of biological features that mediate the effect of an exposure on a phenotype of interest. 
+    c(person("Emily", "Mastej", , "emily.mastej@cuanschutz.edu", role = c("aut", "cre"),
+      person("Max", "McGrath", "A", "max.mcgrath@cuanschutz.edu", role = c("aut")))
+Description: bioPDM is a downstream omics analysis method that uses mediation to explore the causal pathway between an exposure and an outcome through high dimensional, multivariate omic data. The goal of bioPDM is to provide a method to perform mediation analysis on omic data where $p >> n$. The overall objective is to find groups of biological features, or principal directions of mediation (PDM) that mediate the effect of an exposure on a phenotype of interest.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
