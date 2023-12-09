@@ -216,15 +216,15 @@ For the sake of this example, the first 2 $PDM$s are calculated and 100 samples 
 # Run getDirectionsOfMed() with bootstrapping 
 # Bootstrap the first 2 PDMs with 100 samples
 # Do not calculate the JointPDM 
-#ex2_output <- bioPDM::getDirectionsOfMed(data_list = reduced_mediator, nPDM = 2,
-#                doJointPDM = FALSE, doBootPDM = TRUE, BootSamp = 100)
+ex2_output <- bioPDM::getDirectionsOfMed(data_list = reduced_mediator, nPDM = 2,
+                doJointPDM = FALSE, doBootPDM = TRUE, BootSamp = 100)
 ```
 
 The output list now includes an additional element named Boot. This element is a list that includes the 95% CI, mean, and standard deviation of bootstrap results for each feature weight for each $PDM$. The following code block displays how the user can interact with the bootstrapping results. 
 
 ```{r}
 # What are the bootstrapped weight statistics (CI, mean, standard deviation) for feature 1 in PDM1?
-#ex2_output$Boot$featWeightStats$pdm_1$feat_1
+ex2_output$Boot$featWeightStats$pdm_1$feat_1
 ```
 
 \subsubsection{Example 3: Saving Outputs}
@@ -240,8 +240,8 @@ dir_to_save <- "~/"
 # Optional Parameter of free text notes
 free_text <- "Using synthetic dataset, executed bioPDM as an example for vignette"
 
-#ex3_output <- bioPDM::getDirectionsOfMed(data_list = reduced_mediator, nPDM = 3,
-#                saveResults = TRUE, saveDir = dir_to_save, notes = free_text)
+ex3_output <- bioPDM::getDirectionsOfMed(data_list = reduced_mediator, nPDM = 3,
+                saveResults = TRUE, saveDir = dir_to_save, notes = free_text)
 
 ```
 
