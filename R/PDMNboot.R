@@ -25,14 +25,13 @@
 #' @noRd
 #'
 
-.PDMNboot <- function(x, y, m, W, initialValues){
+.PDMNboot <- function(x, y, m, W, initialValues, timeout) {
 
   if (typeof(initialValues)=='list'){
     initialValues = unlist(initialValues)
   }
 
   ## Set Up the initial variables
-
 
   num_calc_pdms <- length(W)  # Number of PDMs previously calculated
   vector_ones <- rep(1, dim(m)[1])  # Design matrix for first regression
@@ -59,41 +58,58 @@
   ## Find weights that maximize |ab| given the initial values of the
   ## optimization algorithm are the same from PDMN.R
 
+  optim_result <- tryCatch({
 
-  optim_result <- pracma::fmincon(initialValues,
-                                  objfun,
-                                  m = m,
-                                  y = y,
-                                  X1 = X1,
-                                  Aeq = A,
-                                  beq = b,
-                                  heq = ceq)
+      # Limit time spent on this - if it fails just try again
+      result <- # R.utils::withTimeout({
+        pracma::fmincon(initialValues,
+                        objfun,
+                        m = m,
+                        y = y,
+                        X1 = X1,
+                        Aeq = A,
+                        beq = b,
+                        heq = ceq)
+        # }, timeout = timeout)
 
-  # Weights
-  weights <- optim_result$par
+      # Weights
+      weights <- result$par
 
-  # Find total_effect
-  total_effect <- pracma::pinv(X1) %*% y
+      # Find total_effect
+      total_effect <- pracma::pinv(X1) %*% y
 
-  # Find alpha_indirect_effect: [n x b] x [b x 1]
-  calc_pdm <- m %*% weights
-  # Solve for alpha since M = X * alpha_indirect_effect
-  alpha_indirect_effect <- pracma::pinv(X1) %*% calc_pdm
+      # Find alpha_indirect_effect: [n x b] x [b x 1]
+      calc_pdm <- m %*% weights
 
-  # Find Beta and total_effect'
-  X2 <- cbind(X1, calc_pdm)
+      # Solve for alpha since M = X * alpha_indirect_effect
+      alpha_indirect_effect <- pracma::pinv(X1) %*% calc_pdm
 
-  eq_coeff <- pracma::pinv(X2) %*% y
-  beta_indirect_effect <- eq_coeff[3]
-  direct_effect <- eq_coeff[2]
+      # Find Beta and total_effect
+      X2 <- cbind(X1, calc_pdm)
 
-  ab <- abs(alpha_indirect_effect[2]*beta_indirect_effect)
+      eq_coeff <- pracma::pinv(X2) %*% y
+      beta_indirect_effect <- eq_coeff[3]
+      direct_effect <- eq_coeff[2]
 
-  # theta = total_effect, direct_effect , alpha_indirect_effect, beta
-  path_coeff <- c(total_effect[2], direct_effect, alpha_indirect_effect[2], beta_indirect_effect)
+      ab <- abs(alpha_indirect_effect[2]*beta_indirect_effect)
+
+      # theta = total_effect, direct_effect , alpha_indirect_effect, beta
+      path_coeff <- c(total_effect[2], direct_effect,
+                      alpha_indirect_effect[2], beta_indirect_effect)
+
+      # Return relevant values
+      list("success" = TRUE, 'weights' = weights, 'path_coeff' = path_coeff)
+
+    }, error = function(e) {
+
+      # If the above errors out (takes too much time) set success to FALSE
+      # and return nothing
+      list("success" = FALSE, 'weights' = NA, 'path_coeff' = NA)
+
+    })
 
   # Return the final PDM weights and theta values
-  return(list('weights' = weights, 'path_coeff' = path_coeff))
+  return(optim_result)
 
 }
 
@@ -117,4 +133,3 @@ ceq <- function(initialValues,m,y,X1){
   return( t(initialValues) %*% initialValues - 1 )
 
 }
-

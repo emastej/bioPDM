@@ -32,7 +32,10 @@
                              tLoadingMatrix,
                              initValues,
                              bootSamp,
-                             whichPDM){
+                             whichPDM,
+                             num,
+                             numCores,
+                             timeout){
 
   ## Bootstrap individual PDMs
 
@@ -59,7 +62,9 @@
                                      redFeatWeights = NULL,
                                      tLoadingMatrix = tLoadingMatrix,
                                      bootSamp = bootSamp,
-                                     initValues = initValues[1])
+                                     initValues = initValues[1],
+                                     numCores = numCores,
+                                     timeout = timeout)
 
         # All other PDMs
       } else {
@@ -70,7 +75,9 @@
                                      redFeatWeights = redFeatWeights[1:k-1],
                                      tLoadingMatrix = tLoadingMatrix,
                                      bootSamp = bootSamp,
-                                     initValues = initValues[k])
+                                     initValues = initValues[k],
+                                     numCores = numCores,
+                                     timeout = timeout)
       }
 
       weight_stats[[k]] <- boot_pdm_results[['weightStats']]

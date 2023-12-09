@@ -21,8 +21,9 @@
 #' file (if saveResults = TRUE)
 #' @param numCores Number of cores to use for parallel execution. Default is
 #' a single core
-#' @param timeout The amount of time allotted to the optimization algorithm to
-#' find the optimal solution
+#' @param timeout Time allowed for optimization for each set of starting values.
+#' Reducing timeout may reduce time required for calculating PDMs, but reducing
+#' it too much may lead to reduced accuracy of results.
 #'
 #' @return A list
 #' \itemize{
@@ -138,7 +139,9 @@ getDirectionsOfMed <- function(data_list = NULL,
                                        tLoadingMatrix = data_list[['tLoadingMatrix']],
                                        initValues = pdm_list[['initValues']],
                                        bootSamp = bootSamp,
-                                       whichPDM = 1:nPDM)
+                                       whichPDM = 1:nPDM,
+                                       numCores = numCores,
+                                       timeout = timeout)
 
     } else {
       stop('Missing data to perform PDM bootstrapping')
