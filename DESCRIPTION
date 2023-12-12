@@ -1,6 +1,6 @@
 Package: bioPDM
 Title: Finds Networks of Biological Features that Mediate the effect of a binary exposure on a continuous outcome
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     c(person("Emily", "Mastej", , "emily.mastej@cuanschutz.edu", role = c("aut", "cre"),
       person("Max", "McGrath", "A", "max.mcgrath@cuanschutz.edu", role = c("aut")))
