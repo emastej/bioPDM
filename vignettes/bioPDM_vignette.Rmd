@@ -217,7 +217,7 @@ For the sake of this example, the first 2 $PDM$s are calculated and 100 samples 
 # Bootstrap the first 2 PDMs with 100 samples
 # Do not calculate the JointPDM 
 ex2_output <- bioPDM::getDirectionsOfMed(data_list = reduced_mediator, nPDM = 2,
-                doJointPDM = FALSE, doBootPDM = TRUE, BootSamp = 100)
+                doJointPDM = FALSE, doBootPDM = TRUE, bootSamp = 100)
 ```
 
 The output list now includes an additional element named Boot. This element is a list that includes the 95% CI, mean, and standard deviation of bootstrap results for each feature weight for each $PDM$. The following code block displays how the user can interact with the bootstrapping results. 
