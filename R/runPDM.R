@@ -15,6 +15,7 @@
 #' a single core
 #'
 #' @importFrom pracma fprintf
+#' @importFrom MASS ginv
 #'
 #' @return A list
 #' \itemize{
@@ -56,8 +57,8 @@
   # Initial Weights randomly generated in the optimization process
   Init_weight_values <- NULL
 
-  # Transpose tLoadingMatrix
-  loading_matrix <-  t(tLoadingMatrix)
+  # Inverse tLoadingMatrix
+  loading_matrix <-  MASS::ginv(tLoadingMatrix)
 
   # Loop through number of PDMs that are to be calculated
   for (k in 1:nPDM){

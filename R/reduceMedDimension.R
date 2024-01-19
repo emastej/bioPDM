@@ -2,7 +2,7 @@
 #'
 #' @description Reduces dimensions of mediator space using Singular
 #' Value Decomposition (SVD). Moves treatment, outcome, and mediator
-#' data into a list to be used as an input in later radPDM steps.
+#' data into a list to be used as an input in later bioPDM steps.
 #'
 #' @param treatment vector (N x 1) Treatment vector for N Subjects
 #' @param outcome vector (N x 1) Outcome vector for N Subjects
