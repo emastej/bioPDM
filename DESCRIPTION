@@ -4,7 +4,7 @@ Version: 1.0.0
 Authors@R: 
     c(person(given = "Emily", family = "Mastej", email = "emily.mastej@cuanschutz.edu", role = c("aut", "cre")), 
       person(given = "Max", family = "McGrath", email = "max.mcgrath@cuanschutz.edu", role = "aut"))
-Description: bioPDM is a downstream omics analysis method that uses mediation to explore the causal pathway between an exposure and an outcome through high dimensional, multivariate omic data. The goal of bioPDM is to provide a method to perform mediation analysis on omic data where $p >> n$. The overall objective is to find groups of biological features, or principal directions of mediation (PDM) that mediate the effect of an exposure on a phenotype of interest.
+Description: Downstream omics analysis method that uses mediation to explore the causal pathway between an exposure and an outcome through high dimensional, multivariate omic data. The goal of bioPDM is to provide a method to perform mediation analysis on omic data where $p >> n$. The overall objective is to find groups of biological features, or principal directions of mediation (PDM) that mediate the effect of an exposure on a phenotype of interest.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
