@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(bioPDM)
 library(ggplot2)
-
+set.seed(90087)
 
 ```
 
