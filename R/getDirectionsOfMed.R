@@ -286,7 +286,7 @@ getDirectionsOfMed <- function(data_list = NULL,
                          notes, dir_to_save){
 
   # Create a folder to save results
-  out_Dir <- "radPDM_results"
+  out_Dir <- "bioPDM_results"
 
   # Create the radPDM_results folder if it does not already exist in the directory
   if (!file.exists(paste0(dir_to_save,'/',out_Dir))){

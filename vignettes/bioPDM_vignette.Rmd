@@ -224,7 +224,7 @@ The output list now includes an additional element named Boot. This element is a
 
 ```{r}
 # What are the bootstrapped weight statistics (CI, mean, standard deviation) for feature 1 in PDM1?
-ex2_output$Boot$featWeightStats$pdm_1$feat_1
+ex2_output$boot$featWeightStats$pdm_1$feat_1
 ```
 
 \subsubsection{Example 3: Saving Outputs}
