@@ -7,6 +7,8 @@
 #' and exVar elements
 #' @param nPDM Number of PDMs to calculate
 #' @param doJointPDM Calculate the JointPDM. Can be True or False
+#' @param doSparseThresh Calculate sparse PDM using threshold method. True or False
+#' @param doSpraseEN Calculate sparse PDM using elastic net method. True or False
 #' @param doBootPDM Bootstrap samples to calculate feature weight stats
 #' (95% CI, mean, standard deviation). Can be True or False
 #' @param doBootJPDM Bootstrap samples to calculate feature weight stats
@@ -61,6 +63,8 @@
 getDirectionsOfMed <- function(data_list = NULL,
                                nPDM = 5,
                                doJointPDM = TRUE,
+                               doSparseThres = FALSE,
+                               doSparseEN = FALSE,
                                doBootPDM = FALSE,
                                doBootJPDM = FALSE,
                                bootSamp = 1000,
@@ -120,8 +124,32 @@ getDirectionsOfMed <- function(data_list = NULL,
                             M = data_list[['M']],
                             npdm = nPDM,
                             doJPDM = doJointPDM)
+  
+  
+  ## Calculate Sparse PDMs
+  
+  
+  # Calculate sparse PDM using the threshold method
+  if (doSparseThres){
+    
+    sparse_results <- .calculateSparseThresh()
+    
+    # Collect the sparse output 
+    pdm_list[['sparseThresh']] <- sparse_results[[]]
+  
+  }
 
-
+  # Calculate sparse PDM using the elastic net method 
+  if (doSparseEN) {
+    
+    sparse_results <- .calculateSparseEN()
+    
+    # Collect the sparse output 
+    pdm_list[['sparseEN']] <- sparse_results[[]]
+    
+  }
+  
+  
   ## Bootstrap Results
 
 
