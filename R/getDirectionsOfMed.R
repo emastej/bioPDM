@@ -132,20 +132,38 @@ getDirectionsOfMed <- function(data_list = NULL,
   # Calculate sparse PDM using the threshold method
   if (doSparseThres){
     
-    sparse_results <- .calculateSparseThresh()
+    sparse_results <- .calculateSparseThresh(x = data_list[['X']],
+                                             y = data_list[['Y']],
+                                             m = data_list[['M']],
+                                             W = pdm_list[['featWeights']],
+                                             nPDM = nPDM)
+    
+    
+    return(list('spFeatWeights' = B_thresh,
+                'spPathCoeff' = pathCoeff_thresh,
+                'spPDM' = PDM_thresh))
     
     # Collect the sparse output 
-    pdm_list[['sparseThresh']] <- sparse_results[[]]
+    pdm_list[['sparseThresh']][['spFeatWeights']] <- sparse_results[['spFeatWeights']]
+    pdm_list[['sparseThresh']][['spPathCoeff']] <- sparse_results[['spPathCoeff']]
+    pdm_list[['sparseThresh']][['spPDM']] <- sparse_results[['spPDM']]
   
   }
 
   # Calculate sparse PDM using the elastic net method 
   if (doSparseEN) {
     
-    sparse_results <- .calculateSparseEN()
+    sparse_results <- .calculateSparseEN(x = data_list[['X']], 
+                                         y = data_list[['Y']], 
+                                         m = data_list[['M']], 
+                                         PDMs = pdm_list[['PDMs']],
+                                         nPDM = nPDM)
     
     # Collect the sparse output 
-    pdm_list[['sparseEN']] <- sparse_results[[]]
+    # Collect the sparse output 
+    pdm_list[['sparseEN']][['spFeatWeights']] <- sparse_results[['spFeatWeights']]
+    pdm_list[['sparseEN']][['spPathCoeff']] <- sparse_results[['spPathCoeff']]
+    pdm_list[['sparseEN']][['spPDM']] <- sparse_results[['spPDM']]
     
   }
   
@@ -255,7 +273,7 @@ getDirectionsOfMed <- function(data_list = NULL,
   # Calculate PDM
   for (i in 1:npdm){
     pdm <- M %*% weights[[i]]
-    list[[sprintf('PDM%d',i)]] <- pdm
+    list[['PDMs']][[sprintf('PDM%d',i)]] <- pdm
   }
 
   # Calculate JointPDM

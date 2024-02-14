@@ -17,7 +17,8 @@ Imports:
     pracma,
     R.utils,
     stats,
-    MASS
+    MASS,
+    glmnet
 Suggests: 
     knitr,
     rmarkdown,

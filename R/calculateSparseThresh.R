@@ -9,8 +9,8 @@
 #' @param m matrix (N x b) Mediator matrix with reduced dimension space of b
 #' features
 #' @param W Nonsparse feature weights 
+#' @param nPDM number of PDMs
 #'
-#' @importFrom pracma pinv
 #'
 #' @return A list
 #' \itemize{
