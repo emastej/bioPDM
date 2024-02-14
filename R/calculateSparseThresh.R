@@ -14,14 +14,55 @@
 #'
 #' @return A list
 #' \itemize{
-#'     \item featWeights: sparse weight vectors for each PDM
-#'     \item pathCoeff: resulting mediation pathway coefficients after sparse 
+#'     \item spFeatWeights: sparse weight vectors for each PDM
+#'     \item spPathCoeff: resulting mediation pathway coefficients after sparse 
 #'     weights calculated
-#'     \item PDM: resulting PDM values after sparse weights are calculated
+#'     \item spPDM: resulting PDM values after sparse weights are calculated
 #'     }
 #'
 #' @noRd
 
-.calculateSparseThresh <- function(x, y, m, W){
+.calculateSparseThresh <- function(x, y, m, W, nPDM){
+  
+  # Define variables
+  B_thresh <- W
+  PDM_thresh <- NULL
+  pathCoeff_thresh <- NULL
+  
+  # Define the weight threshold value 
+  threshold <- 1/sqrt(length(m))
+  
+  # Unlist M if neccessary
+  if (is.list(m)){
+    M <- matrix(unlist(m), ncol = length(m))
+  }
+  
+  for (i in 1:nPDM){
+    
+    # Set any weights whos absolute value is less than threshold to zero
+    B_thresh[[i]](abs(B_thresh[[i]]) < threshold) <- 0
+    
+    # Calculate the new PDM 
+    PDM <-  M %*% B_thresh[[i]]
+    PDM_thresh[[sprintf('PDM%d',i)]] <- PDM
+    
+    # Calculate the new path coefficient 
+    c <- summary(lm(y ~ x))$coefficients[2,1]
+    a <- summary(lm(PDM ~ x))$coefficients[2,1]
+    mod2_coefficients <- summary(lm(y ~ x + PDM))$coefficients
+    c_prime <- mod2_coefficients[2,1]
+    b <- mod2_coefficients[3,1]
+    
+    pathCoeff_thresh[[i]] <- c(c, c_prime, a, b, a*b )
+    
+    
+  }
+  
+  return(list('spFeatWeights' = B_thresh,
+              'spPathCoeff' = pathCoeff_thresh,
+              'spPDM' = PDM_thresh))
   
 }
+
+
+
