@@ -35,5 +35,5 @@ explain
 \description{
 Reduces dimensions of mediator space using Singular
 Value Decomposition (SVD). Moves treatment, outcome, and mediator
-data into a list to be used as an input in later radPDM steps.
+data into a list to be used as an input in later bioPDM steps.
 }

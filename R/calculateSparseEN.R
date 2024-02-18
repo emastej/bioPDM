@@ -12,6 +12,8 @@
 #' @param nPDM number of PDMs
 #'
 #' @importFrom glmnet cv.glmnet
+#' @importFrom stats coef
+#' @importFrom stats lm
 #'
 #' @return A list
 #' \itemize{
@@ -38,9 +40,9 @@
   for (i in 1:nPDM){
     
     # Do a cross validation elastic net fit with PDM ~ M
-    cv_fit <- cv.glmnet(M,PDMs[[i]])
+    cv_fit <- glmnet::cv.glmnet(M,PDMs[[i]])
     # What are the coefficients that correspond to the lambda with the lowest MSE
-    B <- coef(cvfit, s = "lambda.min")
+    B <- stats::coef(cv_fit, s = "lambda.min")
     # Remove the Intercept
     B <- B[-1,]
     B_EN[[i]] <- B
@@ -50,9 +52,9 @@
     PDM_EN[[sprintf('PDM%d',i)]] <- PDM
     
     # Calculate the new path coefficient 
-    c <- summary(lm(y ~ x))$coefficients[2,1]
-    a <- summary(lm(PDM ~ x))$coefficients[2,1]
-    mod2_coefficients <- summary(lm(y ~ x + PDM))$coefficients
+    c <- summary(stats::lm(y ~ x))$coefficients[2,1]
+    a <- summary(stats::lm(PDM ~ x))$coefficients[2,1]
+    mod2_coefficients <- summary(stats::lm(y ~ x + PDM))$coefficients
     c_prime <- mod2_coefficients[2,1]
     b <- mod2_coefficients[3,1]
     

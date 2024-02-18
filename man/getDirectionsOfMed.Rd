@@ -7,7 +7,9 @@
 getDirectionsOfMed(
   data_list = NULL,
   nPDM = 5,
-  doJointPDM = TRUE,
+  doJointPDM = FALSE,
+  doSparseThresh = FALSE,
+  doSparseEN = FALSE,
   doBootPDM = FALSE,
   doBootJPDM = FALSE,
   bootSamp = 1000,
@@ -26,6 +28,10 @@ and exVar elements}
 \item{nPDM}{Number of PDMs to calculate}
 
 \item{doJointPDM}{Calculate the JointPDM. Can be True or False}
+
+\item{doSparseThresh}{Calculate sparse PDM using threshold method. True or False}
+
+\item{doSparseEN}{Calculate sparse PDM using elastic net method. True or False}
 
 \item{doBootPDM}{Bootstrap samples to calculate feature weight stats
 (95\% CI, mean, standard deviation). Can be True or False}

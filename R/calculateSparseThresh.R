@@ -40,10 +40,11 @@
   for (i in 1:nPDM){
     
     # Set any weights whos absolute value is less than threshold to zero
-    B_thresh[[i]](abs(B_thresh[[i]]) < threshold) <- 0
+    B_thresh_i <- B_thresh[[i]]
+    B_thresh_i[base::abs(B_thresh_i) < threshold] <- 0
     
     # Calculate the new PDM 
-    PDM <-  M %*% B_thresh[[i]]
+    PDM <-  M %*% B_thresh_i
     PDM_thresh[[sprintf('PDM%d',i)]] <- PDM
     
     # Calculate the new path coefficient 
@@ -55,6 +56,7 @@
     
     pathCoeff_thresh[[i]] <- c(c, c_prime, a, b, a*b )
     
+    B_thresh[[i]] <- B_thresh_i
     
   }
   

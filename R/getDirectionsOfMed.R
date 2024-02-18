@@ -8,7 +8,7 @@
 #' @param nPDM Number of PDMs to calculate
 #' @param doJointPDM Calculate the JointPDM. Can be True or False
 #' @param doSparseThresh Calculate sparse PDM using threshold method. True or False
-#' @param doSpraseEN Calculate sparse PDM using elastic net method. True or False
+#' @param doSparseEN Calculate sparse PDM using elastic net method. True or False
 #' @param doBootPDM Bootstrap samples to calculate feature weight stats
 #' (95% CI, mean, standard deviation). Can be True or False
 #' @param doBootJPDM Bootstrap samples to calculate feature weight stats
@@ -62,8 +62,8 @@
 
 getDirectionsOfMed <- function(data_list = NULL,
                                nPDM = 5,
-                               doJointPDM = TRUE,
-                               doSparseThres = FALSE,
+                               doJointPDM = FALSE,
+                               doSparseThresh = FALSE,
                                doSparseEN = FALSE,
                                doBootPDM = FALSE,
                                doBootJPDM = FALSE,
@@ -130,18 +130,14 @@ getDirectionsOfMed <- function(data_list = NULL,
   
   
   # Calculate sparse PDM using the threshold method
-  if (doSparseThres){
+  if (doSparseThresh){
     
     sparse_results <- .calculateSparseThresh(x = data_list[['X']],
                                              y = data_list[['Y']],
                                              m = data_list[['M']],
                                              W = pdm_list[['featWeights']],
                                              nPDM = nPDM)
-    
-    
-    return(list('spFeatWeights' = B_thresh,
-                'spPathCoeff' = pathCoeff_thresh,
-                'spPDM' = PDM_thresh))
+
     
     # Collect the sparse output 
     pdm_list[['sparseThresh']][['spFeatWeights']] <- sparse_results[['spFeatWeights']]
@@ -159,7 +155,7 @@ getDirectionsOfMed <- function(data_list = NULL,
                                          PDMs = pdm_list[['PDMs']],
                                          nPDM = nPDM)
     
-    # Collect the sparse output 
+
     # Collect the sparse output 
     pdm_list[['sparseEN']][['spFeatWeights']] <- sparse_results[['spFeatWeights']]
     pdm_list[['sparseEN']][['spPathCoeff']] <- sparse_results[['spPathCoeff']]
