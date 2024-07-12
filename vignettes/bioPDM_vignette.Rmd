@@ -1,6 +1,6 @@
 ---
 title: "bioPDM_vignette"
-output: rmarkdown::pdf_document
+output: rmarkdown::word_document
 vignette: >
   %\VignetteIndexEntry{bioPDM_vignette}
   %\VignetteEngine{knitr::rmarkdown}
@@ -281,7 +281,7 @@ When there is a positive $a$ coefficient, higher PDM values are associated with 
 
 \subsubsection{Example: Plot PDM1 vs PDM2}
 
-```{r}
+```{r, eval=FALSE}
 # Plot PDM1 vs PDM2 using ggplot package
 
 # Make a data frame that includes 
