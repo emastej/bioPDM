@@ -149,17 +149,19 @@ getDirectionsOfMed <- function(data_list = NULL,
   # Calculate sparse PDM using the elastic net method 
   if (doSparseEN) {
     
-    sparse_results <- .calculateSparseEN(x = data_list[['X']], 
-                                         y = data_list[['Y']], 
-                                         m = data_list[['M']], 
-                                         PDMs = pdm_list[['PDMs']],
-                                         nPDM = nPDM)
+    print("sparsePDM with Elastic Net is not avaliable at this time")
     
-
-    # Collect the sparse output 
-    pdm_list[['sparseEN']][['spFeatWeights']] <- sparse_results[['spFeatWeights']]
-    pdm_list[['sparseEN']][['spPathCoeff']] <- sparse_results[['spPathCoeff']]
-    pdm_list[['sparseEN']][['spPDM']] <- sparse_results[['spPDM']]
+    # sparse_results <- .calculateSparseEN(x = data_list[['X']], 
+    #                                     y = data_list[['Y']], 
+    #                                      m = data_list[['M']], 
+    #                                      PDMs = pdm_list[['PDMs']],
+    #                                      nPDM = nPDM)
+    # 
+    # 
+    # # Collect the sparse output 
+    # pdm_list[['sparseEN']][['spFeatWeights']] <- sparse_results[['spFeatWeights']]
+    # pdm_list[['sparseEN']][['spPathCoeff']] <- sparse_results[['spPathCoeff']]
+    # pdm_list[['sparseEN']][['spPDM']] <- sparse_results[['spPDM']]
     
   }
   
