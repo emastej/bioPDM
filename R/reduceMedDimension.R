@@ -32,6 +32,11 @@
 
 
 reduceMedDimension <- function(treatment, outcome, mediator, exVar = 0.9){
+  
+  ## Check that there is no missing data 
+  if (any(is.na(treatment)) | any(is.na(outcome)) | any(is.na(mediator))){
+    stop('bioPDM cannot handle missing data.')
+  }
 
 
   ## Check the data type for X, Y, and M
