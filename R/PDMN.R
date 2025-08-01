@@ -11,7 +11,7 @@
 #' @param W Weights of previously calculated directions of mediation
 #' @param numCores Number of cores to use for parallel execution. Default is
 #' a single core.
-#' @param timeout NEED TO ADD DOCUMENTATION
+#' @param timeout manual optimization. how much time you are allowing the function to run
 #'
 #' @importFrom R.utils withTimeout
 #' @importFrom stats rnorm
@@ -90,7 +90,7 @@
     success <- FALSE
 
     while (!success &
-           ((proc.time()[["elapsed"]] - start_user_time) <= 100)) {
+           ((proc.time()[["elapsed"]] - start_user_time) <= 30)) {
 
       # Generate random initial values where mu = 0 and std = 1
       rand_init_vars <- stats::rnorm(num_M_feat, 0, 1)

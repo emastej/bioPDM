@@ -25,7 +25,7 @@
 #' a single core
 #' @param timeout Time allowed for optimization for each set of starting values.
 #' Reducing timeout may reduce time required for calculating PDMs, but reducing
-#' it too much may lead to reduced accuracy of results.
+#' it too much is untested and may lead to reduced accuracy of results.
 #'
 #' @return A list
 #' \itemize{
@@ -244,6 +244,12 @@ getDirectionsOfMed <- function(data_list = NULL,
   # Remove initValues element in the pdm_list before returning the pdm_list
   # This element was only required for the bootstrapping step
   pdm_list$initValues <- NULL
+  
+  # Add the original feature names to the FeatWeight variable 
+  # this way the feature names align with the output
+  for (i in 1:nPDM){ 
+    rownames(pdm_list$featWeights[[i]]) <- colnames(data_list$M)
+  }
 
   return(pdm_list)
 
